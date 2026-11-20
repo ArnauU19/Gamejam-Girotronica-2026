@@ -5,6 +5,7 @@ public class DragManager : MonoBehaviour
 {
     [SerializeField] private InputActionReference pointerPosition;
     [SerializeField] private InputActionReference click;
+    [SerializeField] private InputActionReference rightClick;
     [SerializeField] private Camera cam;
     [SerializeField] private LayerMask draggablelayers = ~0;
 
@@ -18,16 +19,18 @@ public class DragManager : MonoBehaviour
 
     private void OnEnable()
     {
-
         pointerPosition.action.Enable();
         click.action.Enable();
+        rightClick.action.Enable();
 
         click.action.performed += OnClick;
+        rightClick.action.performed += OnRightClick;
     }
 
     private void OnDisable()
     {
         click.action.performed -= OnClick;
+        rightClick.action.performed -= OnRightClick;
     }
 
     void OnClick(InputAction.CallbackContext context)
@@ -55,6 +58,15 @@ public class DragManager : MonoBehaviour
 
         currentGrabbedObject.OnRelease();
         currentGrabbedObject = null;
+    }
+
+    void OnRightClick(InputAction.CallbackContext context)
+    {
+        if (context.ReadValueAsButton())
+        {
+            if(currentGrabbedObject != null)
+                currentGrabbedObject.RotateRightClick();
+        }
     }
     void Update()
     {

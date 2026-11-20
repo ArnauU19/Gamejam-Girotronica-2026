@@ -13,4 +13,9 @@ public class DraggableObject : MonoBehaviour
     {
         Debug.Log("Me sueltas");
     }
+
+    public void RotateRightClick()
+    {
+        transform.Rotate(0, 0, 90);
+    }
 }
