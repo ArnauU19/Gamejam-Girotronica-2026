@@ -322,7 +322,13 @@ public class SurfaceWalker : MonoBehaviour
 
     Vector2 Forward(Vector2 up) => new Vector2(up.y, -up.x) * (facing < 0 ? -1f : 1f);
 
-    bool IsRuler(Collider2D c) => c != null && !string.IsNullOrEmpty(rulerTag) && c.CompareTag(rulerTag);
+    /// <summary>A ruler is anything tagged rulerTag or carrying the Ruler component (from the drag system).</summary>
+    bool IsRuler(Collider2D c)
+    {
+        if (c == null) return false;
+        if (!string.IsNullOrEmpty(rulerTag) && c.CompareTag(rulerTag)) return true;
+        return c.GetComponentInParent<Ruler>() != null;
+    }
 
     void RotateTowards(Vector2 up, float dt)
     {
