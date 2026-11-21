@@ -62,9 +62,8 @@ public static class TestPanelBuilder
         };
         path.Rebuild();
 
-        // Enter / Exit triggers
-        CreateTrigger("EnterTrigger", panelGo.transform, new Vector2(-8f, 1.75f), new Vector2(0.4f, 2.5f), PanelTrigger.Kind.Enter);
-        CreateTrigger("ExitTrigger", panelGo.transform, new Vector2(4.5f, 5f), new Vector2(2f, 0.4f), PanelTrigger.Kind.Exit);
+        // Panel area: trigger tagged "panel" as big as the frame
+        PanelAreaTools.CreatePanelArea(panelGo.transform);
 
         // --- Player (always starts INSIDE the panel)
         var player = FindPlayer();
@@ -75,7 +74,7 @@ public static class TestPanelBuilder
         }
         Undo.RecordObject(player.transform, "Setup Player");
         player.transform.SetPositionAndRotation(new Vector3(-6.5f, 1.7f, 0f), Quaternion.identity);
-        SetupPlayer(player, panelGo.GetComponent<Panel>());
+        SetupPlayer(player);
 
         // --- Camera
         var cam = Camera.main;
@@ -110,22 +109,22 @@ public static class TestPanelBuilder
         }
         Undo.SetCurrentGroupName("Setup Character");
         int undoGroup = Undo.GetCurrentGroup();
-        SetupPlayer(player, FindClosestPanel(player.transform.position));
+        SetupPlayer(player);
         Undo.CollapseUndoOperations(undoGroup);
         SaveScene();
         Selection.activeGameObject = player;
         Debug.Log($"[TestPanelBuilder] Character '{player.name}' set up and scene saved.");
     }
 
-    internal static void SetupPlayer(GameObject player, Panel startPanel)
+    internal static void SetupPlayer(GameObject player)
     {
         Undo.RecordObject(player.transform, "Setup Player");
         player.transform.localScale = new Vector3(0.5f, 0.5f, 1f); // capsule 0.5 x 1 units
 
-        var sr = GetOrAdd<SpriteRenderer>(player);
-        if (sr.sprite == null) sr.sprite = LoadCapsuleSprite();
-        sr.color = new Color(1f, 0.55f, 0.1f);
-        sr.sortingOrder = 10;
+        // Sprite objects: "2D" inside panels, "3D" outside (switched by SurfaceWalker).
+        Sprite capsule2D = LoadCapsuleSprite();
+        EnsureSpriteChild(player, "2D", capsule2D, new Color(1f, 0.55f, 0.1f));
+        EnsureSpriteChild(player, "3D", capsule2D, new Color(0.2f, 0.6f, 1f));
 
         var rb = GetOrAdd<Rigidbody2D>(player);
         rb.bodyType = RigidbodyType2D.Dynamic;
@@ -151,7 +150,7 @@ public static class TestPanelBuilder
             eye.transform.localPosition = new Vector3(0.25f, 0.5f, 0f);
             eye.transform.localScale = new Vector3(0.25f, 0.25f, 1f);
             var eyeSr = eye.AddComponent<SpriteRenderer>();
-            eyeSr.sprite = sr.sprite;
+            eyeSr.sprite = capsule2D;
             eyeSr.color = Color.black;
             eyeSr.sortingOrder = 11;
         }
@@ -170,8 +169,16 @@ public static class TestPanelBuilder
         sensorBox.size = new Vector2(0.2f, 1.2f); // covers from 0.6 above the feet to near the head
         var sensor = GetOrAdd<FrontSensor>(sensorGo);
         sensor.walker = walker;
+    }
 
-        if (startPanel != null) walker.startPanel = startPanel;
+    static void EnsureSpriteChild(GameObject player, string name, Sprite sprite, Color color)
+    {
+        var t = player.transform.Find(name);
+        GameObject go = t != null ? t.gameObject : CreateChild(name, player.transform);
+        var sr = GetOrAdd<SpriteRenderer>(go);
+        if (sr.sprite == null) sr.sprite = sprite;
+        sr.color = color;
+        sr.sortingOrder = 10;
     }
 
     internal static GameObject FindPlayer()
@@ -182,19 +189,6 @@ public static class TestPanelBuilder
         if (go == null) go = GameObject.Find("Character");
         if (go == null) go = GameObject.Find("Capsule");
         return go;
-    }
-
-    internal static Panel FindClosestPanel(Vector3 pos)
-    {
-        Panel best = null;
-        float bestDist = float.MaxValue;
-        foreach (var p in Resources.FindObjectsOfTypeAll<Panel>())
-        {
-            if (!p.gameObject.scene.IsValid()) continue; // skip prefabs/assets
-            float d = (p.transform.position - pos).sqrMagnitude;
-            if (d < bestDist) { bestDist = d; best = p; }
-        }
-        return best;
     }
 
     internal static void SaveScene()
@@ -210,18 +204,6 @@ public static class TestPanelBuilder
         Undo.RegisterCreatedObjectUndo(go, "Create " + name);
         go.transform.SetParent(parent, false);
         return go;
-    }
-
-    internal static void CreateTrigger(string name, Transform parent, Vector2 pos, Vector2 size, PanelTrigger.Kind kind)
-    {
-        var go = CreateChild(name, parent);
-        go.transform.localPosition = pos;
-        var box = go.AddComponent<BoxCollider2D>();
-        box.isTrigger = true;
-        box.size = size;
-        var trigger = go.AddComponent<PanelTrigger>();
-        trigger.kind = kind;
-        trigger.panel = parent.GetComponent<Panel>();
     }
 
     internal static void SetupLine(LineRenderer line, Material mat, float width, Color color)

@@ -8,7 +8,7 @@ using UnityEngine;
 [InitializeOnLoad]
 public static class ProjectTagsSetup
 {
-    static readonly string[] RequiredTags = { "ruler", "killZone" };
+    static readonly string[] RequiredTags = { "ruler", "killZone", "panel" };
 
     static ProjectTagsSetup()
     {

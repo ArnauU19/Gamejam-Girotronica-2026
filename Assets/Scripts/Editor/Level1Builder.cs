@@ -44,7 +44,7 @@ public static class Level1Builder
 
         // ---------------------------------------------------------------- Start panel
         // Floor: straight -> diagonal down -> straight, ends at the right border (exit).
-        var start = BuildPanel("Panel_Start", lineMat,
+        BuildPanel("Panel_Start", lineMat,
             frameMin: new Vector2(-12f, -3.5f), frameMax: new Vector2(-2f, 4f),
             floor: new List<FloorPath.Point>
             {
@@ -52,9 +52,7 @@ public static class Level1Builder
                 new FloorPath.Point( -7.5f,  1.5f, 0.6f),
                 new FloorPath.Point( -5f,   -1f,   0.6f),
                 new FloorPath.Point( -2f,   -1f),
-            },
-            enterPos: new Vector2(-12f, 2f), enterSize: new Vector2(0.4f, 3f),
-            exitPos: new Vector2(-1.7f, -0.5f), exitSize: new Vector2(0.4f, 2f));
+            });
 
         // ---------------------------------------------------------------- Finish panel
         // Same floor height as the start exit, 4 units to the right (the ruler is ~4.9 long).
@@ -64,9 +62,7 @@ public static class Level1Builder
             {
                 new FloorPath.Point( 2f,   -1f),
                 new FloorPath.Point(11.5f, -1f),
-            },
-            enterPos: new Vector2(2.2f, -0.5f), enterSize: new Vector2(0.4f, 2f),
-            exitPos: new Vector2(11.8f, -0.5f), exitSize: new Vector2(0.4f, 2f));
+            });
 
         // Goal flag inside the finish panel
         var goal = TestPanelBuilder.CreateChild("Goal", finish.transform);
@@ -92,7 +88,6 @@ public static class Level1Builder
         character.transform.SetPositionAndRotation(new Vector3(-10.5f, 2.1f, 0f), Quaternion.identity);
         var walker = character.GetComponent<SurfaceWalker>();
         Undo.RecordObject(walker, "Setup walker");
-        walker.startPanel = start.GetComponent<Panel>(); // always starts inside the Start panel
         walker.speed = 2f;                               // time to place the ruler before the edge
         PrefabUtility.RecordPrefabInstancePropertyModifications(walker);
 
@@ -147,7 +142,7 @@ public static class Level1Builder
     }
 
     static GameObject BuildPanel(string name, Material lineMat, Vector2 frameMin, Vector2 frameMax,
-        List<FloorPath.Point> floor, Vector2 enterPos, Vector2 enterSize, Vector2 exitPos, Vector2 exitSize)
+        List<FloorPath.Point> floor)
     {
         var panelGo = new GameObject(name);
         Undo.RegisterCreatedObjectUndo(panelGo, "Create " + name);
@@ -171,8 +166,7 @@ public static class Level1Builder
         path.points = floor;
         path.Rebuild();
 
-        TestPanelBuilder.CreateTrigger("EnterTrigger", panelGo.transform, enterPos, enterSize, PanelTrigger.Kind.Enter);
-        TestPanelBuilder.CreateTrigger("ExitTrigger", panelGo.transform, exitPos, exitSize, PanelTrigger.Kind.Exit);
+        PanelAreaTools.CreatePanelArea(panelGo.transform); // trigger tagged "panel" as big as the frame
         return panelGo;
     }
 
@@ -183,7 +177,7 @@ public static class Level1Builder
         if (prefab == null)
         {
             var temp = new GameObject("Character");
-            TestPanelBuilder.SetupPlayer(temp, null);
+            TestPanelBuilder.SetupPlayer(temp);
             prefab = PrefabUtility.SaveAsPrefabAsset(temp, CharacterPrefabPath);
             Object.DestroyImmediate(temp);
             Debug.Log($"[Level1Builder] Created {CharacterPrefabPath}");

@@ -6,6 +6,11 @@ using UnityEngine;
 /// - Between two points the floor is a straight segment (horizontal, diagonal, vertical... any angle).
 /// - A point with bendRadius > 0 becomes a rounded bend instead of a sharp corner.
 /// The component generates the EdgeCollider2D (physics) and the LineRenderer (visual) from the points.
+///
+/// Editing (all changes are kept when the level starts):
+/// - Select the floor and drag the point handles in the Scene view (or edit the list in the Inspector).
+/// - You can also edit the EdgeCollider2D directly ("Edit Collider"): that edit is kept and the line follows it.
+/// Nothing is regenerated when entering Play mode: the level uses exactly what was saved.
 /// Points are in local space of this GameObject.
 /// </summary>
 [ExecuteAlways]
@@ -30,15 +35,60 @@ public class FloorPath : MonoBehaviour
     [Range(2, 32)] public int segmentsPerBend = 12;
     [Min(0.01f)] public float lineWidth = 0.15f;
 
+    // Hashes of what was last generated, to know what changed (saved with the scene).
+    [SerializeField, HideInInspector] int builtSettingsHash;
+    [SerializeField, HideInInspector] int builtColliderHash;
+
     readonly List<Vector2> path = new List<Vector2>();
 
-    void OnEnable() => Rebuild();
+    /// <summary>True when the collider was edited by hand after the last generation from the points.</summary>
+    public bool ColliderEditedByHand
+    {
+        get
+        {
+            var col = GetComponent<EdgeCollider2D>();
+            return col != null && builtColliderHash != 0 && HashPoints(col.points) != builtColliderHash;
+        }
+    }
 
 #if UNITY_EDITOR
     void OnValidate()
     {
-        // Changing other components inside OnValidate is not allowed, so defer it.
-        UnityEditor.EditorApplication.delayCall += () => { if (this != null) Rebuild(); };
+        // OnValidate also runs when the scene loads / Play starts: only regenerate if the
+        // FloorPath settings really changed, so hand-made collider edits are never overwritten.
+        if (Application.isPlaying || HashSettings() == builtSettingsHash) return;
+
+        // Floors created before this version have no hash: adopt what is saved (collider included)
+        // instead of regenerating it.
+        bool legacy = builtSettingsHash == 0;
+        UnityEditor.EditorApplication.delayCall += () =>
+        {
+            if (this == null) return;
+            if (legacy) AdoptCurrentCollider();
+            else Rebuild();
+        };
+    }
+
+    void AdoptCurrentCollider()
+    {
+        var col = GetComponent<EdgeCollider2D>();
+        ApplyToLine(col.points);
+        builtSettingsHash = HashSettings();
+        builtColliderHash = HashPoints(col.points);
+        UnityEditor.EditorUtility.SetDirty(this);
+    }
+
+    void Update()
+    {
+        // Edit mode only: if the collider was edited by hand, make the line follow it.
+        if (Application.isPlaying) return;
+        var col = GetComponent<EdgeCollider2D>();
+        if (col == null || builtColliderHash == 0) return;
+        int h = HashPoints(col.points);
+        if (h == builtColliderHash) return;
+        ApplyToLine(col.points);
+        builtColliderHash = h;
+        UnityEditor.EditorUtility.SetDirty(this);
     }
 #endif
 
@@ -48,15 +98,64 @@ public class FloorPath : MonoBehaviour
         BuildPath(path);
         if (path.Count < 2) return;
 
-        GetComponent<EdgeCollider2D>().SetPoints(path);
+        var col = GetComponent<EdgeCollider2D>();
+        col.SetPoints(path);
+        ApplyToLine(path);
 
-        var line = GetComponent<LineRenderer>();
-        if (line != null)
+        builtSettingsHash = HashSettings();
+        builtColliderHash = HashPoints(col.points);
+#if UNITY_EDITOR
+        if (!Application.isPlaying)
         {
-            line.useWorldSpace = false;
-            line.positionCount = path.Count;
-            for (int i = 0; i < path.Count; i++) line.SetPosition(i, path[i]);
-            line.startWidth = line.endWidth = lineWidth;
+            UnityEditor.EditorUtility.SetDirty(col);
+            UnityEditor.EditorUtility.SetDirty(this);
+            var line = GetComponent<LineRenderer>();
+            if (line != null) UnityEditor.EditorUtility.SetDirty(line);
+        }
+#endif
+    }
+
+    /// <summary>Replaces the points with the current collider shape (sharp corners).</summary>
+    public void ImportPointsFromCollider()
+    {
+        var col = GetComponent<EdgeCollider2D>();
+        points.Clear();
+        foreach (var p in col.points) points.Add(new Point(p.x, p.y));
+        Rebuild();
+    }
+
+    void ApplyToLine(IList<Vector2> pts)
+    {
+        var line = GetComponent<LineRenderer>();
+        if (line == null) return;
+        line.useWorldSpace = false;
+        line.positionCount = pts.Count;
+        for (int i = 0; i < pts.Count; i++) line.SetPosition(i, pts[i]);
+        line.startWidth = line.endWidth = lineWidth;
+    }
+
+    int HashSettings()
+    {
+        unchecked
+        {
+            int h = 17;
+            foreach (var p in points)
+                h = h * 31 + Mathf.RoundToInt(p.position.x * 1000f) * 7 + Mathf.RoundToInt(p.position.y * 1000f) * 13 +
+                    Mathf.RoundToInt(p.bendRadius * 1000f);
+            h = h * 31 + segmentsPerBend;
+            h = h * 31 + Mathf.RoundToInt(lineWidth * 1000f);
+            return h == 0 ? 1 : h;
+        }
+    }
+
+    static int HashPoints(IList<Vector2> pts)
+    {
+        unchecked
+        {
+            int h = 23;
+            foreach (var p in pts)
+                h = h * 31 + Mathf.RoundToInt(p.x * 1000f) * 7 + Mathf.RoundToInt(p.y * 1000f) * 13;
+            return h == 0 ? 1 : h;
         }
     }
 
