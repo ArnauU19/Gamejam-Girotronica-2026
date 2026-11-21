@@ -16,11 +16,8 @@ public class LevelManager : MonoBehaviour
     [Header("Countdown")]
     [Min(0f)] public float countdownSeconds = 3f;
     public Text countdownText;
-    public string goText = "Som-hi!";
-    public float goDisplayTime = 0.75f;
 
     [Header("Level end")]
-    public string completeText = "Nivell superat!";
     [Tooltip("Seconds between reaching the goal and loading the next scene (only if the character has no Animator; " +
              "otherwise the next scene loads when the Win animation finished its loops).")]
     public float nextLevelDelay = 1.5f;
@@ -67,17 +64,14 @@ public class LevelManager : MonoBehaviour
         if (walker != null) walker.BeginLevel();
         OnLevelStarted?.Invoke();
 
-        SetText(goText);
-        yield return new WaitForSeconds(goDisplayTime);
-        if (!LevelCompleted) SetText("");
+        SetText("");   // no "go" message: the text just disappears when the countdown ends
     }
 
     /// <summary>Called by LevelGoal when the character reaches the end.</summary>
     public void CompleteLevel()
     {
         if (LevelCompleted) return;
-        LevelCompleted = true;
-        SetText(completeText);
+        LevelCompleted = true;   // no "level complete" message, the Win animation plays and the next level loads
         OnLevelCompleted?.Invoke();
         StartCoroutine(LoadNextScene());
     }

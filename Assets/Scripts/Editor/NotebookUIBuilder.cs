@@ -96,11 +96,11 @@ public static class NotebookUIBuilder
         var ct = canvas.transform;
 
         // Desk + notebook
-        var desk = Img(ct, "Desk", LoadSprite("Assets/Art/Captura de pantalla 2026-11-21 173050.png"), new Color(0.82f, 0.78f, 0.74f));
+        var desk = Img(ct, "Desk", LoadSprite(System.IO.File.Exists(DeskArt.WoodPath) ? DeskArt.WoodPath : "Assets/Art/Captura de pantalla 2026-11-21 173050.png"), new Color(0.82f, 0.78f, 0.74f));
         Stretch(desk.rectTransform);
         var fitter = desk.gameObject.AddComponent<AspectRatioFitter>();
         fitter.aspectMode = AspectRatioFitter.AspectMode.EnvelopeParent;
-        fitter.aspectRatio = 697f / 455f;
+        fitter.aspectRatio = desk.sprite != null ? desk.sprite.rect.width / desk.sprite.rect.height : 16f / 9f;
 
         var shadow = Img(ct, "NotebookShadow", NotebookUIArt.Get(NotebookUIArt.SoftShadow), new Color(0, 0, 0, 0.55f), Image.Type.Sliced);
         Place(shadow.rectTransform, new Vector2(18, -34), new Vector2(1430, 920));
@@ -328,9 +328,7 @@ public static class NotebookUIBuilder
         var manager = Object.FindAnyObjectByType<LevelManager>();
         if (manager == null || manager.countdownText == null) manager = LevelUIBuilder.AddToOpenScene();
         var so = new SerializedObject(manager);
-        so.FindProperty("goText").stringValue = "Som-hi!";
         so.FindProperty("countdownSeconds").floatValue = 3f;
-        so.FindProperty("completeText").stringValue = "Nivell superat!";
         so.ApplyModifiedPropertiesWithoutUndo();
 
         var text = manager.countdownText;
