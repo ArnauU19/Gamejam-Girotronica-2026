@@ -1121,6 +1121,14 @@ PrefabInstance:
       value: Ruler
       objectReference: {fileID: 0}
     - target: {fileID: 5120417226370239726, guid: b9627f1d62582f1439c9b9298d3bca81, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5120417226370239726, guid: b9627f1d62582f1439c9b9298d3bca81, type: 3}
+      propertyPath: m_LocalScale.y
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5120417226370239726, guid: b9627f1d62582f1439c9b9298d3bca81, type: 3}
       propertyPath: m_LocalPosition.x
       value: -7.87
       objectReference: {fileID: 0}
