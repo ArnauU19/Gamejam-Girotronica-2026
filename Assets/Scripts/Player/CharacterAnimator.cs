@@ -52,6 +52,7 @@ public class CharacterAnimator : MonoBehaviour
     static readonly int WinId = Animator.StringToHash("Win");
 
     SurfaceWalker walker;
+    int winSfxPlayed;   // Eat sounds already played during this Win animation (one per loop)
 
     void Awake()
     {
@@ -78,6 +79,7 @@ public class CharacterAnimator : MonoBehaviour
         if (next == SurfaceWalker.State.Finished)
         {
             WinLoopsDone = false;
+            winSfxPlayed = 0;
             animator.SetTrigger(WinId);
         }
     }
@@ -106,6 +108,14 @@ public class CharacterAnimator : MonoBehaviour
         var info = animator.GetCurrentAnimatorStateInfo(0);
         if (info.IsName(winState))
         {
+            // One Eat sound at the start of each loop of the Win animation
+            int loop = Mathf.FloorToInt(info.normalizedTime);
+            while (winSfxPlayed <= loop && winSfxPlayed < winLoops)
+            {
+                if (AudioManager.Instance != null) AudioManager.Instance.PlaySfx(Sfx.Eat);
+                winSfxPlayed++;
+            }
+
             // Hold the last frame once the Win clip has looped winLoops times.
             if (!WinLoopsDone && info.normalizedTime >= winLoops)
             {

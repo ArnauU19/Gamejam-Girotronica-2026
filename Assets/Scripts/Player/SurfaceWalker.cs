@@ -498,10 +498,15 @@ public class SurfaceWalker : MonoBehaviour
 
         if (dizzy)
         {
+            if (AudioManager.Instance != null) AudioManager.Instance.PlaySfx(Sfx.Hit);
             FrontalCollision?.Invoke();
             StartCoroutine(RespawnAfterDizzy());
         }
-        else Respawn();
+        else
+        {
+            if (AudioManager.Instance != null) AudioManager.Instance.PlaySfx(Sfx.Respawn);
+            Respawn();
+        }
     }
 
     IEnumerator RespawnAfterDizzy()

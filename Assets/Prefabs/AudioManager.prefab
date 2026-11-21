@@ -47,7 +47,7 @@ AudioSource:
   m_audioClip: {fileID: 0}
   m_Resource: {fileID: 0}
   m_PlayOnAwake: 0
-  m_Volume: 0
+  m_Volume: 0.8
   m_Pitch: 1
   Loop: 1
   Mute: 0
@@ -168,8 +168,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3c1b7e0daddf9de4393f3f297ddb6441, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AudioManager
-  mainMenuSong: {fileID: 8300000, guid: aa46d0bf7bf01f940932b1225eb47402, type: 3}
-  levelSong: {fileID: 8300000, guid: 3d5d24d76bb94db45beb044b62a8c296, type: 3}
+  mainMenuSong: {fileID: 8300000, guid: 581f2cd588bdbab4199a266fcfe50290, type: 3}
+  levelSong: {fileID: 8300000, guid: d828233562f90e64f80565d93b2c758e, type: 3}
   sfxEntries:
   - id: 0
     clips:
@@ -191,7 +191,7 @@ MonoBehaviour:
     - {fileID: 8300000, guid: c0211c83e12d95f4eb8f2e9c428270e3, type: 3}
     volume: 0.7
     pitchRange: {x: 1, y: 1}
-  - id: 3
+  - id: 4
     clips:
     - {fileID: 8300000, guid: cb5b270e2ae96f44cb0fd3035f278fe8, type: 3}
     volume: 0.7

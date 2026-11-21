@@ -34,6 +34,7 @@ public class MainMenu : MonoBehaviour
     private void Start()
     {
         CloseOptions();
+        if (AudioManager.Instance != null) AudioManager.Instance.playMainMenuSong();
     }
 
     private void Update()
@@ -48,6 +49,7 @@ public class MainMenu : MonoBehaviour
 
     public void Play()
     {
+        if (AudioManager.Instance != null) AudioManager.Instance.playLevelSong();
         SceneManager.LoadScene(firstLevelScene);
     }
 

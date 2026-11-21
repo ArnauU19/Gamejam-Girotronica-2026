@@ -71,14 +71,16 @@ public class AudioManager : MonoBehaviour
         BuildSfxLookup();
         LoadVolumes();
 
-        playLevelSong();
+        playMainMenuSong();   // the game starts on the menu song; MainMenu.Play switches to the level song
     }
 
     public void playMainMenuSong()
     {
         if (mainMenuSong == null)
             return;
-        
+        if (audioManagerSource.clip == mainMenuSong && audioManagerSource.isPlaying)
+            return;     // already playing, do not restart it
+
         audioManagerSource.Stop();
         audioManagerSource.clip = mainMenuSong;
         audioManagerSource.Play();
@@ -87,6 +89,8 @@ public class AudioManager : MonoBehaviour
     public void playLevelSong()
     {
         if (levelSong == null)
+            return;
+        if (audioManagerSource.clip == levelSong && audioManagerSource.isPlaying)
             return;
 
         audioManagerSource.Stop();
