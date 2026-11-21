@@ -101,6 +101,7 @@ public class SurfaceWalker : MonoBehaviour
     enum Filter { Any, FloorOnly, RulerOnly }
 
     Rigidbody2D rb;
+    FrontSensor frontSensor;
     ContactFilter2D contactFilter;
     readonly List<RaycastHit2D> hits = new List<RaycastHit2D>();
     readonly HashSet<Collider2D> panelsTouched = new HashSet<Collider2D>();
@@ -126,6 +127,7 @@ public class SurfaceWalker : MonoBehaviour
         rb = GetComponent<Rigidbody2D>();
         rb.gravityScale = 0f; // we do our own gravity
         BodyCollider = GetComponent<Collider2D>();
+        frontSensor = GetComponentInChildren<FrontSensor>(true);
         contactFilter = new ContactFilter2D { useTriggers = false };
         spawnPosition = rb.position;
         spawnRotation = rb.rotation;
@@ -195,9 +197,11 @@ public class SurfaceWalker : MonoBehaviour
         Vector2 pos = rb.position;
         float step = speed * dt;
 
-        // 1) Wall in front (sharp concave corner): climb onto it. Rulers are never walls to climb.
+        // 1) Wall in front (sharp concave corner): climb onto it. Rulers are never walls to climb, and
+        //    erasers neither (the front sensor makes the character turn around when it touches them).
         if (Cast(pos, forward, bodyHalfWidth + step + 0.05f, Filter.FloorOnly, out var wall) &&
-            Vector2.Angle(wall.normal, up) > wallAngle)
+            Vector2.Angle(wall.normal, up) > wallAngle &&
+            (frontSensor == null || !frontSensor.IsEraser(wall.collider)))
         {
             lastGroundNormal = wall.normal;
             rb.MovePosition(wall.point + wall.normal * footOffset);
@@ -298,6 +302,20 @@ public class SurfaceWalker : MonoBehaviour
     }
 
     /// <summary>Changes the walking direction and mirrors the children (sprites, front sensor).</summary>
+    /// <summary>Turns the character around (used by the FrontSensor when it touches an eraser).</summary>
+    public void FlipDirection(string reason)
+    {
+        if (currentState == State.Dead || currentState == State.Finished || currentState == State.Waiting) return;
+
+        // While falling, the sideways speed is reversed too.
+        if (currentState == State.Falling)
+        {
+            Vector2 along = Vector2.Dot(velocity, gravityDir) * gravityDir;
+            velocity = along - (velocity - along);
+        }
+        SetFacing(-facing, reason);
+    }
+
     void SetFacing(int newFacing, string reason)
     {
         newFacing = newFacing < 0 ? -1 : 1;
