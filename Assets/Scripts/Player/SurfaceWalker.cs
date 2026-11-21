@@ -6,18 +6,24 @@ using UnityEngine;
 /// Character that walks forward automatically.
 ///
 /// States (every change goes through SetState, so animations can hook into StateChanged):
-///  - Walking : inside a panel, glued to the floor, rotating with its normal.
-///  - OnRuler : on a bridge (collider tagged "ruler"). It does NOT follow the ruler normal:
-///              it keeps the direction and the gravity it had when it left the floor.
+///  - Walking : glued to the floor, following its normal.
+///  - OnRuler : on a bridge (collider tagged "ruler"). Keeps the direction and gravity it had when it
+///              left the floor. Outside the panels, if the ground ray hits a ruler whose normal differs
+///              more than slideFlipAngle (50°) from the character's up, the direction flips.
 ///  - Falling : no support. Falls with the gravity of the last floor it touched.
 ///  - Dead    : the front sensor touched a ruler, or the character touched a "killZone" collider.
-///              It only lasts an instant: the character is teleported to the spawn point
-///              (Died / Respawned events) and goes on. The level countdown does not restart.
+///              It only lasts an instant: the character is teleported to the spawn point and goes on.
+///              The level countdown does not restart.
 ///  - Finished: reached the LevelGoal.
 ///  - Waiting : before the LevelManager countdown ends.
 ///
+/// Panels: every panel has a trigger tagged "panel" as big as the panel (PanelTrigger).
+///  - Body touching a panel trigger (enter / stay) -> inside : "2D" sprite object active.
+///  - Body touching none (exit)                    -> outside: "3D" sprite object active.
+///  - Outside a panel the character never changes its angle.
+///
 /// Setup: Rigidbody2D (Dynamic, Gravity Scale 0) + body Collider2D marked as Is Trigger,
-/// plus a child with a FrontSensor (small trigger collider in front of the body).
+/// a FrontSensor child, and the "2D" / "3D" sprite children.
 /// Unity gravity is NOT used: this script applies its own gravity direction.
 /// </summary>
 [RequireComponent(typeof(Rigidbody2D))]
@@ -30,7 +36,7 @@ public class SurfaceWalker : MonoBehaviour
     public float speed = 3f;
     [Tooltip("1 = walks to its right, -1 = walks to its left (relative to its own up).")]
     public int facing = 1;
-    [Tooltip("Degrees per second the body rotates to match the floor.")]
+    [Tooltip("Degrees per second the body rotates to match the floor (only inside panels).")]
     public float turnSpeed = 720f;
 
     [Header("Ground detection")]
@@ -53,6 +59,16 @@ public class SurfaceWalker : MonoBehaviour
     public float rulerClearance = 0.35f;
     [Tooltip("Speed (units/s) used to settle the feet onto the ruler surface.")]
     public float rulerSnapSpeed = 8f;
+    [Tooltip("Outside the panels: if the angle between a ruler's normal and the character's up is bigger " +
+             "than this, the direction flips.")]
+    [Range(0f, 90f)] public float slideFlipAngle = 50f;
+
+    [Header("Panels")]
+    public string panelTag = "panel";
+    [Tooltip("Sprite object shown inside a panel. If empty, the child named \"2D\" is used.")]
+    public GameObject sprite2D;
+    [Tooltip("Sprite object shown outside the panels. If empty, the child named \"3D\" is used.")]
+    public GameObject sprite3D;
 
     [Header("Death / respawn")]
     [Tooltip("Colliders with this tag kill the character on contact.")]
@@ -67,10 +83,6 @@ public class SurfaceWalker : MonoBehaviour
     public float airDrag = 1.5f;
     public Vector2 startGravityDir = Vector2.down;
 
-    [Header("Panels")]
-    [Tooltip("Panel where the character starts. The character always starts inside a panel.")]
-    public Panel startPanel;
-
     [Header("State (read only)")]
     [SerializeField] State currentState = State.Falling;
     [Tooltip("True while the character is outside every panel.")]
@@ -84,56 +96,55 @@ public class SurfaceWalker : MonoBehaviour
 
     public State CurrentState => currentState;
     public bool OutPanel => outPanel;
-    public Vector2 GravityDir { get; private set; }
-    public Vector2 LastGroundNormal { get; private set; }
-    /// <summary>Direction of movement while on a ruler / falling (the direction it had when leaving the floor).</summary>
-    public Vector2 ExitDirection => Forward(-GravityDir);
-    public Panel CurrentPanel { get; private set; }
     public Collider2D BodyCollider { get; private set; }
-    public int Deaths { get; private set; }
-
-    /// <summary>Raised when the character dies (reason). Respawned follows right after.</summary>
-    public event Action<string> Died;
-    public event Action Respawned;
 
     enum Filter { Any, FloorOnly, RulerOnly }
 
     Rigidbody2D rb;
-    Vector2 spawnPosition;
-    float spawnRotation;
-    float lastRespawnTime = -1f;
-    bool killZoneTagValid;
-    Vector2 velocity;
-    float unsupportedDistance;
+    FrontSensor frontSensor;
     ContactFilter2D contactFilter;
     readonly List<RaycastHit2D> hits = new List<RaycastHit2D>();
+    readonly HashSet<Collider2D> panelsTouched = new HashSet<Collider2D>();
+    bool panelsChanged;
+
+    Vector2 gravityDir;
+    Vector2 lastGroundNormal;
+    Vector2 velocity;
+    float unsupportedDistance;
+    Collider2D flipLatch; // ruler that already flipped the direction (flip only once per ruler)
+
+    Vector2 spawnPosition;
+    float spawnRotation;
+    int startFacing = 1;
+    float lastRespawnTime = -1f;
+    bool killZoneTagValid, panelTagValid;
+
+    /// <summary>Direction of movement while on a ruler / falling (the direction it had when leaving the floor).</summary>
+    Vector2 ExitDirection => Forward(-gravityDir);
 
     void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
         rb.gravityScale = 0f; // we do our own gravity
         BodyCollider = GetComponent<Collider2D>();
+        frontSensor = GetComponentInChildren<FrontSensor>(true);
         contactFilter = new ContactFilter2D { useTriggers = false };
         spawnPosition = rb.position;
         spawnRotation = rb.rotation;
+        startFacing = facing < 0 ? -1 : 1;
 
-        // CompareTag with a tag missing from the Tag Manager logs errors, so check it once.
-        try { GameObject.FindGameObjectsWithTag(killZoneTag); killZoneTagValid = !string.IsNullOrEmpty(killZoneTag); }
-        catch (UnityException)
-        {
-            killZoneTagValid = false;
-            Debug.LogWarning($"[SurfaceWalker] Tag '{killZoneTag}' is not defined in the Tag Manager: kill zones are disabled.", this);
-        }
+        if (sprite2D == null) sprite2D = transform.Find("2D")?.gameObject;
+        if (sprite3D == null) sprite3D = transform.Find("3D")?.gameObject;
+
+        killZoneTagValid = TagExists(killZoneTag);
+        panelTagValid = TagExists(panelTag);
     }
 
     void Start()
     {
-        GravityDir = startGravityDir.sqrMagnitude > 0f ? startGravityDir.normalized : Vector2.down;
-        LastGroundNormal = -GravityDir;
-
-        // We always start inside a panel.
-        outPanel = false;
-        CurrentPanel = startPanel;
+        gravityDir = startGravityDir.sqrMagnitude > 0f ? startGravityDir.normalized : Vector2.down;
+        lastGroundNormal = -gravityDir;
+        SetOutPanel(false); // we always start inside a panel
 
         // Wait for the level countdown if there is a LevelManager; otherwise start right away
         // (lands on the floor below on the first steps).
@@ -153,18 +164,19 @@ public class SurfaceWalker : MonoBehaviour
         rb.angularVelocity = 0f;
         float dt = Time.fixedDeltaTime;
 
+        if (panelsChanged)
+        {
+            panelsChanged = false;
+            SetOutPanel(panelsTouched.Count == 0);
+        }
+
         switch (currentState)
         {
             case State.Walking: Walk(dt); break;
             case State.OnRuler: WalkOnRuler(dt); break;
             case State.Falling: Fall(dt); break;
-            case State.Waiting:
-            case State.Dead:
-            case State.Finished: break;
         }
     }
-
-    // ------------------------------------------------------------------ State
 
     void SetState(State next, string reason)
     {
@@ -172,24 +184,26 @@ public class SurfaceWalker : MonoBehaviour
         State prev = currentState;
         currentState = next;
         if (logStateChanges)
-            Debug.Log($"[SurfaceWalker] {prev} -> {next} ({reason}) outPanel={outPanel} gravity={GravityDir}", this);
+            Debug.Log($"[SurfaceWalker] {prev} -> {next} ({reason}) outPanel={outPanel} gravity={gravityDir}", this);
         StateChanged?.Invoke(prev, next);
     }
 
-    // ------------------------------------------------------------------ Walking (panel floor)
+    // ------------------------------------------------------------------ Walking (floor)
 
     void Walk(float dt)
     {
-        Vector2 up = LastGroundNormal;
+        Vector2 up = lastGroundNormal;
         Vector2 forward = Forward(up);
         Vector2 pos = rb.position;
         float step = speed * dt;
 
-        // 1) Wall in front (sharp concave corner): climb onto it. Rulers are never walls to climb.
+        // 1) Wall in front (sharp concave corner): climb onto it. Rulers are never walls to climb, and
+        //    erasers neither (the front sensor makes the character turn around when it touches them).
         if (Cast(pos, forward, bodyHalfWidth + step + 0.05f, Filter.FloorOnly, out var wall) &&
-            Vector2.Angle(wall.normal, up) > wallAngle)
+            Vector2.Angle(wall.normal, up) > wallAngle &&
+            (frontSensor == null || !frontSensor.IsEraser(wall.collider)))
         {
-            LastGroundNormal = wall.normal;
+            lastGroundNormal = wall.normal;
             rb.MovePosition(wall.point + wall.normal * footOffset);
             RotateTowards(wall.normal, dt);
             return;
@@ -202,15 +216,15 @@ public class SurfaceWalker : MonoBehaviour
         if (Cast(target, -up, footOffset + groundSnapDistance, Filter.FloorOnly, out var ground))
         {
             unsupportedDistance = 0f;
-            LastGroundNormal = ground.normal;
+            lastGroundNormal = ground.normal;
             rb.MovePosition(ground.point + ground.normal * footOffset);
             RotateTowards(ground.normal, dt);
             return;
         }
 
         // 4) The floor ended. A ruler within clearance? -> go straight onto it.
-        GravityDir = -up;
-        if (Cast(target, GravityDir, footOffset + rulerClearance, Filter.RulerOnly, out _))
+        gravityDir = -up;
+        if (Cast(target, gravityDir, footOffset + rulerClearance, Filter.RulerOnly, out _))
         {
             rb.MovePosition(target);
             EnterRuler("floor ended, ruler found");
@@ -227,20 +241,20 @@ public class SurfaceWalker : MonoBehaviour
 
     void WalkOnRuler(float dt)
     {
-        // Direction and gravity are the ones of the exit: no rotation, no normal following.
-        Vector2 up = -GravityDir;
-        Vector2 forward = ExitDirection;
-        Vector2 target = rb.position + forward * (speed * dt);
+        Vector2 up = -gravityDir;
+        Vector2 pos = rb.position;
+        Vector2 target = pos + ExitDirection * (speed * dt);
 
         float reach = footOffset + Mathf.Max(rulerClearance, groundSnapDistance);
-        if (Cast(target, GravityDir, reach, Filter.Any, out var hit))
+        if (Cast(target, gravityDir, reach, Filter.Any, out var hit))
         {
             if (!IsRuler(hit.collider))
             {
                 // Reached a normal floor (next panel): walk on it again following its normal.
                 if (Vector2.Angle(hit.normal, up) < wallAngle && hit.distance <= footOffset + groundSnapDistance)
                 {
-                    LastGroundNormal = hit.normal;
+                    flipLatch = null;
+                    lastGroundNormal = hit.normal;
                     unsupportedDistance = 0f;
                     rb.MovePosition(hit.point + hit.normal * footOffset);
                     SetState(State.Walking, $"reached floor '{hit.collider.name}'");
@@ -249,10 +263,22 @@ public class SurfaceWalker : MonoBehaviour
             }
             else
             {
-                // Settle the feet onto the ruler, only along the gravity axis.
                 unsupportedDistance = 0f;
+
+                // Outside the panels: a steep ruler (normal vs our up > slideFlipAngle) flips the
+                // direction. Only once per ruler, otherwise it would flip every frame.
+                float angle = Vector2.Angle(hit.normal, up);
+                if (outPanel && angle > slideFlipAngle && flipLatch != hit.collider)
+                {
+                    flipLatch = hit.collider;
+                    SetFacing(-facing, $"steep ruler '{hit.collider.name}' ({angle:F0}° > {slideFlipAngle:F0}°)");
+                    rb.MovePosition(pos); // do not step into it this frame
+                    return;
+                }
+
+                // Settle the feet onto the ruler, only along the gravity axis (never following its normal).
                 float gap = hit.distance - footOffset;
-                target += GravityDir * Mathf.Clamp(gap, -rulerSnapSpeed * dt, rulerSnapSpeed * dt);
+                target += gravityDir * Mathf.Clamp(gap, -rulerSnapSpeed * dt, rulerSnapSpeed * dt);
                 rb.MovePosition(target);
                 RotateTowards(up, dt);
                 return;
@@ -260,6 +286,7 @@ public class SurfaceWalker : MonoBehaviour
         }
 
         // No ruler under the feet: keep going straight a little, then fall.
+        flipLatch = null;
         rb.MovePosition(target);
         RotateTowards(up, dt);
         unsupportedDistance += speed * dt;
@@ -268,10 +295,42 @@ public class SurfaceWalker : MonoBehaviour
 
     void EnterRuler(string reason)
     {
-        LastGroundNormal = -GravityDir;
+        lastGroundNormal = -gravityDir;
         velocity = Vector2.zero;
         unsupportedDistance = 0f;
         SetState(State.OnRuler, reason);
+    }
+
+    /// <summary>Changes the walking direction and mirrors the children (sprites, front sensor).</summary>
+    /// <summary>Turns the character around (used by the FrontSensor when it touches an eraser).</summary>
+    public void FlipDirection(string reason)
+    {
+        if (currentState == State.Dead || currentState == State.Finished || currentState == State.Waiting) return;
+
+        // While falling, the sideways speed is reversed too.
+        if (currentState == State.Falling)
+        {
+            Vector2 along = Vector2.Dot(velocity, gravityDir) * gravityDir;
+            velocity = along - (velocity - along);
+        }
+        SetFacing(-facing, reason);
+    }
+
+    void SetFacing(int newFacing, string reason)
+    {
+        newFacing = newFacing < 0 ? -1 : 1;
+        if (newFacing == (facing < 0 ? -1 : 1)) return;
+        facing = newFacing;
+
+        foreach (Transform child in transform)
+        {
+            Vector3 p = child.localPosition;
+            p.x = -p.x;
+            child.localPosition = p;
+        }
+        foreach (var sr in GetComponentsInChildren<SpriteRenderer>(true)) sr.flipX = !sr.flipX;
+
+        if (logStateChanges) Debug.Log($"[SurfaceWalker] Direction inverted, facing = {facing} ({reason})", this);
     }
 
     // ------------------------------------------------------------------ Falling
@@ -279,29 +338,29 @@ public class SurfaceWalker : MonoBehaviour
     void Fall(float dt)
     {
         // Split velocity in "along gravity" and "sideways".
-        float along = Vector2.Dot(velocity, GravityDir);
-        Vector2 sideways = velocity - along * GravityDir;
+        float along = Vector2.Dot(velocity, gravityDir);
+        Vector2 sideways = velocity - along * gravityDir;
 
         along = Mathf.Min(along + gravity * dt, maxFallSpeed);
         sideways *= Mathf.Exp(-airDrag * dt);
-        velocity = sideways + along * GravityDir;
+        velocity = sideways + along * gravityDir;
 
         Vector2 delta = velocity * dt;
         Vector2 pos = rb.position;
 
         // Move sideways first, then look along gravity.
-        float fallDist = Mathf.Max(0f, Vector2.Dot(delta, GravityDir));
-        Vector2 origin = pos + (delta - GravityDir * Vector2.Dot(delta, GravityDir));
-        if (Cast(origin, GravityDir, footOffset + fallDist + rulerClearance, Filter.Any, out var hit))
+        float fallDist = Mathf.Max(0f, Vector2.Dot(delta, gravityDir));
+        Vector2 origin = pos + (delta - gravityDir * Vector2.Dot(delta, gravityDir));
+        if (Cast(origin, gravityDir, footOffset + fallDist + rulerClearance, Filter.Any, out var hit))
         {
             if (IsRuler(hit.collider))
             {
                 // Caught by a bridge (with clearance). Feet settle on it in WalkOnRuler.
-                rb.MovePosition(origin + GravityDir * Mathf.Min(fallDist, Mathf.Max(0f, hit.distance - footOffset)));
+                rb.MovePosition(origin + gravityDir * Mathf.Min(fallDist, Mathf.Max(0f, hit.distance - footOffset)));
                 EnterRuler($"caught by ruler '{hit.collider.name}'");
                 return;
             }
-            if (hit.distance <= footOffset + fallDist && Vector2.Dot(hit.normal, -GravityDir) > 0.5f)
+            if (hit.distance <= footOffset + fallDist && Vector2.Dot(hit.normal, -gravityDir) > 0.5f)
             {
                 Land(hit);
                 return;
@@ -309,39 +368,71 @@ public class SurfaceWalker : MonoBehaviour
         }
 
         rb.MovePosition(pos + delta);
-        RotateTowards(-GravityDir, dt);
+        RotateTowards(-gravityDir, dt);
     }
 
     void StartFalling(string reason)
     {
-        GravityDir = -LastGroundNormal;
-        velocity = Forward(LastGroundNormal) * speed;
+        gravityDir = -lastGroundNormal;
+        velocity = Forward(lastGroundNormal) * speed;
         unsupportedDistance = 0f;
         SetState(State.Falling, reason);
     }
 
     void Land(RaycastHit2D hit)
     {
-        LastGroundNormal = hit.normal;
+        lastGroundNormal = hit.normal;
         rb.MovePosition(hit.point + hit.normal * footOffset);
         velocity = Vector2.zero;
         unsupportedDistance = 0f;
         SetState(State.Walking, $"landed on '{hit.collider.name}'");
     }
 
-    // ------------------------------------------------------------------ Death
+    // ------------------------------------------------------------------ Triggers: panels and kill zones
+
+    void OnTriggerEnter2D(Collider2D other)
+    {
+        if (IsKillZone(other)) Die($"touched killZone '{other.name}'");
+        else UpdatePanelContact(other);
+    }
+
+    void OnTriggerStay2D(Collider2D other) => UpdatePanelContact(other);
+
+    void OnTriggerExit2D(Collider2D other) => UpdatePanelContact(other);
+
+    /// <summary>
+    /// Keeps the set of panel triggers touched by the BODY (child colliders like the front sensor
+    /// also send trigger messages here, so the body contact is checked explicitly).
+    /// Inside/outside is decided once per physics step in FixedUpdate, so an exit and an enter in the
+    /// same step (e.g. after a respawn) do not make the sprite flicker.
+    /// </summary>
+    void UpdatePanelContact(Collider2D other)
+    {
+        if (!panelTagValid || other == null || !other.CompareTag(panelTag)) return;
+
+        bool changed = other.enabled && BodyCollider.IsTouching(other)
+            ? panelsTouched.Add(other)
+            : panelsTouched.Remove(other);
+        if (changed) panelsChanged = true;
+    }
+
+    void SetOutPanel(bool value)
+    {
+        bool changed = value != outPanel;
+        outPanel = value;
+        if (sprite2D != null) sprite2D.SetActive(!outPanel);
+        if (sprite3D != null) sprite3D.SetActive(outPanel);
+        if (changed && logStateChanges)
+            Debug.Log($"[SurfaceWalker] {(outPanel ? "EXITED the panels (3D)" : "ENTERED a panel (2D)")}", this);
+    }
+
+    // ------------------------------------------------------------------ Death / goal
 
     /// <summary>Called by the FrontSensor child when it touches something.</summary>
     public void OnFrontSensorTouched(Collider2D other)
     {
         if (IsRuler(other)) Die($"front sensor hit ruler '{other.name}'");
         else if (IsKillZone(other)) Die($"touched killZone '{other.name}'");
-    }
-
-    /// <summary>Any collider of the character (body or sensor) touching a killZone kills it.</summary>
-    void OnTriggerEnter2D(Collider2D other)
-    {
-        if (IsKillZone(other)) Die($"touched killZone '{other.name}'");
     }
 
     /// <summary>Dies and is instantly teleported to the spawn point. The countdown does not restart.</summary>
@@ -351,11 +442,9 @@ public class SurfaceWalker : MonoBehaviour
         // Several colliders can report the same death in the same physics step: only the first counts.
         if (Time.fixedTime == lastRespawnTime) return;
 
-        Deaths++;
-        Debug.Log($"[SurfaceWalker] DIED ({reason}). Respawning. Deaths = {Deaths}", this);
+        Debug.Log($"[SurfaceWalker] DIED ({reason}). Respawning.", this);
         velocity = Vector2.zero;
         SetState(State.Dead, reason);
-        Died?.Invoke(reason);
         Respawn();
     }
 
@@ -371,16 +460,18 @@ public class SurfaceWalker : MonoBehaviour
 
         velocity = Vector2.zero;
         unsupportedDistance = 0f;
-        GravityDir = startGravityDir.sqrMagnitude > 0f ? startGravityDir.normalized : Vector2.down;
-        LastGroundNormal = -GravityDir;
-        outPanel = false;
-        CurrentPanel = startPanel;
+        flipLatch = null;
+        SetFacing(startFacing, "respawn");
+        gravityDir = startGravityDir.sqrMagnitude > 0f ? startGravityDir.normalized : Vector2.down;
+        lastGroundNormal = -gravityDir;
+        panelsTouched.Clear();
+        panelsChanged = false;
+        SetOutPanel(false); // the spawn is inside a panel; its trigger re-adds it on the next step
         lastRespawnTime = Time.fixedTime;
 
         // Still in the countdown -> keep waiting; otherwise go on immediately (lands on the floor).
         var level = LevelManager.Instance;
         SetState(level != null && !level.LevelStarted ? State.Waiting : State.Falling, "respawn");
-        Respawned?.Invoke();
     }
 
     /// <summary>Called by LevelGoal: the character stops, the level is complete.</summary>
@@ -391,28 +482,17 @@ public class SurfaceWalker : MonoBehaviour
         SetState(State.Finished, "reached the goal");
     }
 
-    // ------------------------------------------------------------------ Panels
-
-    public void OnEnteredPanel(Panel panel)
-    {
-        CurrentPanel = panel;
-        outPanel = false;
-        // TODO: change the character depending on the panel.
-    }
-
-    public void OnExitedPanel(Panel panel)
-    {
-        // Ignore an exit of a panel we already left (e.g. next panel's enter fired first).
-        if (CurrentPanel != null && CurrentPanel != panel) return;
-        CurrentPanel = null;
-        outPanel = true;
-        // Nothing else to do here: when the floor ends, the walker goes onto a ruler or falls
-        // with the gravity of the last floor. TODO: change the character depending on the panel.
-    }
-
     // ------------------------------------------------------------------ Helpers
 
     Vector2 Forward(Vector2 up) => new Vector2(up.y, -up.x) * (facing < 0 ? -1f : 1f);
+
+    /// <summary>Rotates the body towards "up". Outside the panels the angle never changes.</summary>
+    void RotateTowards(Vector2 up, float dt)
+    {
+        if (outPanel) return;
+        float target = Vector2.SignedAngle(Vector2.up, up);
+        rb.MoveRotation(Mathf.MoveTowardsAngle(rb.rotation, target, turnSpeed * dt));
+    }
 
     bool IsKillZone(Collider2D c) => killZoneTagValid && c != null && c.CompareTag(killZoneTag);
 
@@ -424,10 +504,16 @@ public class SurfaceWalker : MonoBehaviour
         return c.GetComponentInParent<Ruler>() != null;
     }
 
-    void RotateTowards(Vector2 up, float dt)
+    /// <summary>CompareTag with a tag missing from the Tag Manager logs errors, so check it once.</summary>
+    bool TagExists(string tag)
     {
-        float target = Vector2.SignedAngle(Vector2.up, up);
-        rb.MoveRotation(Mathf.MoveTowardsAngle(rb.rotation, target, turnSpeed * dt));
+        if (string.IsNullOrEmpty(tag)) return false;
+        try { GameObject.FindGameObjectsWithTag(tag); return true; }
+        catch (UnityException)
+        {
+            Debug.LogWarning($"[SurfaceWalker] Tag '{tag}' is not defined in the Tag Manager.", this);
+            return false;
+        }
     }
 
     /// <summary>Closest raycast hit, ignoring triggers and ourselves, filtered by floor/ruler.</summary>
@@ -457,7 +543,7 @@ public class SurfaceWalker : MonoBehaviour
     void OnDrawGizmosSelected()
     {
         Vector2 pos = transform.position;
-        Vector2 up = Application.isPlaying ? LastGroundNormal : (Vector2)transform.up;
+        Vector2 up = Application.isPlaying ? lastGroundNormal : (Vector2)transform.up;
         Gizmos.color = Color.yellow;
         Gizmos.DrawLine(pos, pos - up * (footOffset + groundSnapDistance));
         Gizmos.color = new Color(1f, 0.5f, 0f);
@@ -467,7 +553,7 @@ public class SurfaceWalker : MonoBehaviour
         if (Application.isPlaying && currentState == State.Falling)
         {
             Gizmos.color = Color.magenta;
-            Gizmos.DrawLine(pos, pos + GravityDir * 1.5f);
+            Gizmos.DrawLine(pos, pos + gravityDir * 1.5f);
         }
     }
 }

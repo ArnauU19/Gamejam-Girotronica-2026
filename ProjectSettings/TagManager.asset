@@ -6,6 +6,8 @@ TagManager:
   tags:
   - ruler
   - killZone
+  - panel
+  - eraser
   layers:
   - Default
   - TransparentFX
