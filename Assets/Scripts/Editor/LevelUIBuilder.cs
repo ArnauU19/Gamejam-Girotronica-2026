@@ -150,9 +150,13 @@ public static class LevelUIBuilder
             .Select(x => x.path)
             .ToList();
 
-        var list = levels.Select(p => new EditorBuildSettingsScene(p, true)).ToList();
+        // MainMenu (if it exists) always goes first so Level1 stays "next" after it.
+        const string menuPath = "Assets/Scenes/MainMenu.unity";
+        var list = new List<EditorBuildSettingsScene>();
+        if (File.Exists(menuPath)) list.Add(new EditorBuildSettingsScene(menuPath, true));
+        list.AddRange(levels.Select(p => new EditorBuildSettingsScene(p, true)));
         foreach (var s in EditorBuildSettings.scenes)
-            if (!levels.Contains(s.path)) list.Add(new EditorBuildSettingsScene(s.path, false));
+            if (!levels.Contains(s.path) && s.path != menuPath) list.Add(new EditorBuildSettingsScene(s.path, false));
 
         EditorBuildSettings.scenes = list.ToArray();
         AssetDatabase.SaveAssets();

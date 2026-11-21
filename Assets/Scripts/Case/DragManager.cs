@@ -50,13 +50,15 @@ public class DragManager : MonoBehaviour
         currentGrabbedObject = top;
         offset = currentGrabbedObject.transform.position - world;
         currentGrabbedObject.OnGrab();
+        PlaySfx(Sfx.Grab);
     }
 
     void OnClickCanceled()
     {
         if (currentGrabbedObject == null) return;
 
-        TrySnap(currentGrabbedObject);
+        bool snapped = TrySnap(currentGrabbedObject);
+        PlaySfx(Sfx.Release);
         currentGrabbedObject.OnRelease();
         currentGrabbedObject = null;
     }
@@ -75,7 +77,7 @@ public class DragManager : MonoBehaviour
             currentGrabbedObject.transform.position = GetPointerWorldPos() + offset;
     }
 
-    void TrySnap(DraggableObject obj)
+    bool TrySnap(DraggableObject obj)
     {
         obj.ReleaseZones();
 
@@ -99,12 +101,19 @@ public class DragManager : MonoBehaviour
             }
         }
 
-        if (bestZone == null) return;
+        if (bestZone == null) return false;
 
         Vector3 delta = bestZone.Position - bestTip.transform.position;
         delta.z = 0;
         obj.transform.position += delta;
         obj.OccupyZone(bestZone);
+        return true;
+    }
+
+    void PlaySfx(Sfx id)
+    {
+        if (AudioManager.Instance != null)
+            AudioManager.Instance.PlaySfx(id);
     }
 
     Vector3 GetPointerWorldPos()
