@@ -278,6 +278,9 @@ MonoBehaviour:
   - {fileID: 660258304320767329}
   - {fileID: 5621465248233409207}
   - {fileID: 5489531052104442310}
+  rotateDuration: 0.25
+  overshootDegrees: 12
+  overshootSplit: 0.65
 --- !u!61 &1497236886841172515
 BoxCollider2D:
   m_ObjectHideFlags: 0
