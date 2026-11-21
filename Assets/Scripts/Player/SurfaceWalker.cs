@@ -10,7 +10,11 @@ using UnityEngine;
 ///  - OnRuler : on a bridge (collider tagged "ruler"). It does NOT follow the ruler normal:
 ///              it keeps the direction and the gravity it had when it left the floor.
 ///  - Falling : no support. Falls with the gravity of the last floor it touched.
-///  - Dead    : the front sensor touched a ruler (the bridge blocks the way).
+///  - Dead    : the front sensor touched a ruler, or the character touched a "killZone" collider.
+///              It only lasts an instant: the character is teleported to the spawn point
+///              (Died / Respawned events) and goes on. The level countdown does not restart.
+///  - Finished: reached the LevelGoal.
+///  - Waiting : before the LevelManager countdown ends.
 ///
 /// Setup: Rigidbody2D (Dynamic, Gravity Scale 0) + body Collider2D marked as Is Trigger,
 /// plus a child with a FrontSensor (small trigger collider in front of the body).
@@ -19,7 +23,8 @@ using UnityEngine;
 [RequireComponent(typeof(Rigidbody2D))]
 public class SurfaceWalker : MonoBehaviour
 {
-    public enum State { Walking, Falling, OnRuler, Dead }
+    // New states go at the END so values already saved in scenes/prefabs keep their meaning.
+    public enum State { Walking, Falling, OnRuler, Dead, Finished, Waiting }
 
     [Header("Movement")]
     public float speed = 3f;
@@ -48,6 +53,12 @@ public class SurfaceWalker : MonoBehaviour
     public float rulerClearance = 0.35f;
     [Tooltip("Speed (units/s) used to settle the feet onto the ruler surface.")]
     public float rulerSnapSpeed = 8f;
+
+    [Header("Death / respawn")]
+    [Tooltip("Colliders with this tag kill the character on contact.")]
+    public string killZoneTag = "killZone";
+    [Tooltip("Optional. If empty, the character respawns where it was at the start of the level.")]
+    public Transform spawnPoint;
 
     [Header("Gravity (custom)")]
     public float gravity = 25f;
@@ -79,10 +90,19 @@ public class SurfaceWalker : MonoBehaviour
     public Vector2 ExitDirection => Forward(-GravityDir);
     public Panel CurrentPanel { get; private set; }
     public Collider2D BodyCollider { get; private set; }
+    public int Deaths { get; private set; }
+
+    /// <summary>Raised when the character dies (reason). Respawned follows right after.</summary>
+    public event Action<string> Died;
+    public event Action Respawned;
 
     enum Filter { Any, FloorOnly, RulerOnly }
 
     Rigidbody2D rb;
+    Vector2 spawnPosition;
+    float spawnRotation;
+    float lastRespawnTime = -1f;
+    bool killZoneTagValid;
     Vector2 velocity;
     float unsupportedDistance;
     ContactFilter2D contactFilter;
@@ -94,6 +114,16 @@ public class SurfaceWalker : MonoBehaviour
         rb.gravityScale = 0f; // we do our own gravity
         BodyCollider = GetComponent<Collider2D>();
         contactFilter = new ContactFilter2D { useTriggers = false };
+        spawnPosition = rb.position;
+        spawnRotation = rb.rotation;
+
+        // CompareTag with a tag missing from the Tag Manager logs errors, so check it once.
+        try { GameObject.FindGameObjectsWithTag(killZoneTag); killZoneTagValid = !string.IsNullOrEmpty(killZoneTag); }
+        catch (UnityException)
+        {
+            killZoneTagValid = false;
+            Debug.LogWarning($"[SurfaceWalker] Tag '{killZoneTag}' is not defined in the Tag Manager: kill zones are disabled.", this);
+        }
     }
 
     void Start()
@@ -105,7 +135,16 @@ public class SurfaceWalker : MonoBehaviour
         outPanel = false;
         CurrentPanel = startPanel;
 
-        currentState = State.Falling; // lands on the floor below on the first steps
+        // Wait for the level countdown if there is a LevelManager; otherwise start right away
+        // (lands on the floor below on the first steps).
+        var level = LevelManager.Instance;
+        currentState = level != null && !level.LevelStarted ? State.Waiting : State.Falling;
+    }
+
+    /// <summary>Called by the LevelManager when the countdown ends.</summary>
+    public void BeginLevel()
+    {
+        if (currentState == State.Waiting) SetState(State.Falling, "level started");
     }
 
     void FixedUpdate()
@@ -119,7 +158,9 @@ public class SurfaceWalker : MonoBehaviour
             case State.Walking: Walk(dt); break;
             case State.OnRuler: WalkOnRuler(dt); break;
             case State.Falling: Fall(dt); break;
-            case State.Dead: break;
+            case State.Waiting:
+            case State.Dead:
+            case State.Finished: break;
         }
     }
 
@@ -293,10 +334,61 @@ public class SurfaceWalker : MonoBehaviour
     /// <summary>Called by the FrontSensor child when it touches something.</summary>
     public void OnFrontSensorTouched(Collider2D other)
     {
-        if (currentState == State.Dead || !IsRuler(other)) return;
-        Debug.Log($"[SurfaceWalker] DIED: ruler '{other.name}' blocks the way.", this);
+        if (IsRuler(other)) Die($"front sensor hit ruler '{other.name}'");
+        else if (IsKillZone(other)) Die($"touched killZone '{other.name}'");
+    }
+
+    /// <summary>Any collider of the character (body or sensor) touching a killZone kills it.</summary>
+    void OnTriggerEnter2D(Collider2D other)
+    {
+        if (IsKillZone(other)) Die($"touched killZone '{other.name}'");
+    }
+
+    /// <summary>Dies and is instantly teleported to the spawn point. The countdown does not restart.</summary>
+    public void Die(string reason)
+    {
+        if (currentState == State.Dead || currentState == State.Finished) return;
+        // Several colliders can report the same death in the same physics step: only the first counts.
+        if (Time.fixedTime == lastRespawnTime) return;
+
+        Deaths++;
+        Debug.Log($"[SurfaceWalker] DIED ({reason}). Respawning. Deaths = {Deaths}", this);
         velocity = Vector2.zero;
-        SetState(State.Dead, $"front sensor hit ruler '{other.name}'");
+        SetState(State.Dead, reason);
+        Died?.Invoke(reason);
+        Respawn();
+    }
+
+    void Respawn()
+    {
+        Vector2 pos = spawnPoint != null ? (Vector2)spawnPoint.position : spawnPosition;
+        float rot = spawnPoint != null ? spawnPoint.eulerAngles.z : spawnRotation;
+
+        // Teleport (rigidbody + transform, so interpolation does not draw a trail).
+        rb.position = pos;
+        rb.rotation = rot;
+        transform.SetPositionAndRotation(new Vector3(pos.x, pos.y, transform.position.z), Quaternion.Euler(0f, 0f, rot));
+
+        velocity = Vector2.zero;
+        unsupportedDistance = 0f;
+        GravityDir = startGravityDir.sqrMagnitude > 0f ? startGravityDir.normalized : Vector2.down;
+        LastGroundNormal = -GravityDir;
+        outPanel = false;
+        CurrentPanel = startPanel;
+        lastRespawnTime = Time.fixedTime;
+
+        // Still in the countdown -> keep waiting; otherwise go on immediately (lands on the floor).
+        var level = LevelManager.Instance;
+        SetState(level != null && !level.LevelStarted ? State.Waiting : State.Falling, "respawn");
+        Respawned?.Invoke();
+    }
+
+    /// <summary>Called by LevelGoal: the character stops, the level is complete.</summary>
+    public void ReachGoal()
+    {
+        if (currentState == State.Dead) return;
+        velocity = Vector2.zero;
+        SetState(State.Finished, "reached the goal");
     }
 
     // ------------------------------------------------------------------ Panels
@@ -321,6 +413,8 @@ public class SurfaceWalker : MonoBehaviour
     // ------------------------------------------------------------------ Helpers
 
     Vector2 Forward(Vector2 up) => new Vector2(up.y, -up.x) * (facing < 0 ? -1f : 1f);
+
+    bool IsKillZone(Collider2D c) => killZoneTagValid && c != null && c.CompareTag(killZoneTag);
 
     /// <summary>A ruler is anything tagged rulerTag or carrying the Ruler component (from the drag system).</summary>
     bool IsRuler(Collider2D c)
@@ -347,6 +441,7 @@ public class SurfaceWalker : MonoBehaviour
         {
             var h = hits[i];
             if (h.rigidbody == rb) continue;
+            if (IsKillZone(h.collider)) continue; // never stand on a kill zone: touching it kills
             bool ruler = IsRuler(h.collider);
             if (filter == Filter.FloorOnly && ruler) continue;
             if (filter == Filter.RulerOnly && !ruler) continue;

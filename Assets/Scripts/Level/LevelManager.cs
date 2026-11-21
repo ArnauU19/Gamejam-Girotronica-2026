@@ -1,0 +1,111 @@
+using System;
+using System.Collections;
+using UnityEngine;
+using UnityEngine.SceneManagement;
+using UnityEngine.UI;
+
+/// <summary>
+/// One per level scene.
+///  - Holds the character during a countdown (the player can already place rulers), then releases it.
+///  - When the goal is reached, loads the next scene of the build scene list (File > Build Profiles > Scene List).
+/// </summary>
+public class LevelManager : MonoBehaviour
+{
+    public static LevelManager Instance { get; private set; }
+
+    [Header("Countdown")]
+    [Min(0f)] public float countdownSeconds = 5f;
+    public Text countdownText;
+    public string goText = "GO!";
+    public float goDisplayTime = 0.75f;
+
+    [Header("Level end")]
+    public string completeText = "Level complete!";
+    [Tooltip("Seconds between reaching the goal and loading the next scene.")]
+    public float nextLevelDelay = 1.5f;
+
+    [Header("References")]
+    [Tooltip("If empty, the SurfaceWalker of the scene is used.")]
+    public SurfaceWalker walker;
+
+    /// <summary>True while the character must wait for the countdown.</summary>
+    public bool HoldsCharacter => !LevelStarted;
+    public bool LevelStarted { get; private set; }
+    public bool LevelCompleted { get; private set; }
+
+    public event Action OnLevelStarted;
+    public event Action OnLevelCompleted;
+
+    void Awake()
+    {
+        Instance = this;
+        if (walker == null) walker = FindAnyObjectByType<SurfaceWalker>();
+        SetText("");
+    }
+
+    void OnDestroy()
+    {
+        if (Instance == this) Instance = null;
+    }
+
+    IEnumerator Start()
+    {
+        // Countdown: 5, 4, 3, 2, 1
+        float remaining = countdownSeconds;
+        while (remaining > 0f)
+        {
+            SetText(Mathf.CeilToInt(remaining).ToString());
+            yield return null;
+            remaining -= Time.deltaTime;
+        }
+
+        LevelStarted = true;
+        Debug.Log("[LevelManager] Countdown finished, level started.", this);
+        if (walker != null) walker.BeginLevel();
+        OnLevelStarted?.Invoke();
+
+        SetText(goText);
+        yield return new WaitForSeconds(goDisplayTime);
+        if (!LevelCompleted) SetText("");
+    }
+
+    /// <summary>Called by LevelGoal when the character reaches the end.</summary>
+    public void CompleteLevel()
+    {
+        if (LevelCompleted) return;
+        LevelCompleted = true;
+        SetText(completeText);
+        OnLevelCompleted?.Invoke();
+        StartCoroutine(LoadNextScene());
+    }
+
+    IEnumerator LoadNextScene()
+    {
+        yield return new WaitForSeconds(nextLevelDelay);
+
+        int current = SceneManager.GetActiveScene().buildIndex;
+        if (current < 0)
+        {
+            Debug.LogWarning("[LevelManager] This scene is not in the build scene list, cannot know the next level.", this);
+            yield break;
+        }
+
+        int next = current + 1;
+        if (next < SceneManager.sceneCountInBuildSettings)
+        {
+            Debug.Log($"[LevelManager] Loading next scene (build index {next}).", this);
+            SceneManager.LoadScene(next);
+        }
+        else
+        {
+            Debug.Log("[LevelManager] Last level of the scene list reached.", this);
+        }
+    }
+
+    void SetText(string value)
+    {
+        if (countdownText == null) return;
+        countdownText.text = value;
+        countdownText.enabled = !string.IsNullOrEmpty(value);
+    }
+}
