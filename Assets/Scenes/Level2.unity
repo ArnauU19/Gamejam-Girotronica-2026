@@ -1149,7 +1149,7 @@ SpriteRenderer:
   m_SortingOrder: 0
   m_MaskInteraction: 0
   m_Sprite: {fileID: 2252997412820427254, guid: db38259d70b4d1149a439217332b4cfe, type: 3}
-  m_Color: {r: 0.7132075, g: 0.7132075, b: 0.7132075, a: 1}
+  m_Color: {r: 0.74509805, g: 0.74509805, b: 0.74509805, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
@@ -1412,6 +1412,12 @@ MonoBehaviour:
   draggablelayers:
     serializedVersion: 2
     m_Bits: 64
+  shakeDegrees: 1.5
+  shakeSpeed: 18
+  shakeBlendTime: 0.12
+  outlineColor: {r: 1, g: 0.92, b: 0.35, a: 1}
+  outlineWidth: 0.04
+  outlineDepthPush: 0.02
 --- !u!4 &650246218
 Transform:
   m_ObjectHideFlags: 0
@@ -1758,6 +1764,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4c48b056f1bf84846bd91022dfb32b06, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::LevelCase
+  pieceScale: 0.5
+  scaleTime: 0.12
 --- !u!212 &803735579
 SpriteRenderer:
   serializedVersion: 3
@@ -2867,7 +2875,7 @@ SpriteRenderer:
   m_SortingOrder: 0
   m_MaskInteraction: 0
   m_Sprite: {fileID: 8499011838631215071, guid: fabb45549d5080c4dbecacff8c9240c0, type: 3}
-  m_Color: {r: 0.7056604, g: 0.7056604, b: 0.7056604, a: 1}
+  m_Color: {r: 0.744, g: 0.744, b: 0.744, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
@@ -3273,7 +3281,7 @@ SpriteRenderer:
   m_SortingOrder: 0
   m_MaskInteraction: 0
   m_Sprite: {fileID: 2894601726509960218, guid: 4ddfaa773cbedbd48b2d1f603d205531, type: 3}
-  m_Color: {r: 0.7433963, g: 0.7433963, b: 0.7433963, a: 1}
+  m_Color: {r: 0.74509805, g: 0.74509805, b: 0.74509805, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
@@ -3681,7 +3689,7 @@ MonoBehaviour:
     m_FontStyle: 0
     m_BestFit: 0
     m_MinSize: 10
-    m_MaxSize: 40
+    m_MaxSize: 50
     m_Alignment: 4
     m_AlignByGeometry: 0
     m_RichText: 1

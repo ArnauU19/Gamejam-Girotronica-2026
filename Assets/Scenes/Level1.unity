@@ -182,7 +182,7 @@ MonoBehaviour:
     m_FontStyle: 0
     m_BestFit: 0
     m_MinSize: 10
-    m_MaxSize: 40
+    m_MaxSize: 50
     m_Alignment: 4
     m_AlignByGeometry: 0
     m_RichText: 1
@@ -2253,7 +2253,7 @@ SpriteRenderer:
   m_SortingOrder: 0
   m_MaskInteraction: 0
   m_Sprite: {fileID: 2894601726509960218, guid: 4ddfaa773cbedbd48b2d1f603d205531, type: 3}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 0.74509805, g: 0.74509805, b: 0.74509805, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
@@ -2561,8 +2561,12 @@ PrefabInstance:
       value: Ruler
       objectReference: {fileID: 0}
     - target: {fileID: 5120417226370239726, guid: b9627f1d62582f1439c9b9298d3bca81, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 2.4
+      objectReference: {fileID: 0}
+    - target: {fileID: 5120417226370239726, guid: b9627f1d62582f1439c9b9298d3bca81, type: 3}
       propertyPath: m_LocalScale.y
-      value: 7.367932
+      value: 2.5
       objectReference: {fileID: 0}
     - target: {fileID: 5120417226370239726, guid: b9627f1d62582f1439c9b9298d3bca81, type: 3}
       propertyPath: m_LocalPosition.x
@@ -2974,6 +2978,12 @@ MonoBehaviour:
   draggablelayers:
     serializedVersion: 2
     m_Bits: 64
+  shakeDegrees: 1.5
+  shakeSpeed: 18
+  shakeBlendTime: 0.12
+  outlineColor: {r: 1, g: 0.92, b: 0.35, a: 1}
+  outlineWidth: 0.04
+  outlineDepthPush: 0.02
 --- !u!4 &1641537126
 Transform:
   m_ObjectHideFlags: 0
@@ -3218,6 +3228,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4c48b056f1bf84846bd91022dfb32b06, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::LevelCase
+  pieceScale: 0.5
+  scaleTime: 0.12
 --- !u!212 &1733301107
 SpriteRenderer:
   serializedVersion: 3
@@ -3655,7 +3667,7 @@ SpriteRenderer:
   m_SortingOrder: 0
   m_MaskInteraction: 0
   m_Sprite: {fileID: 8499011838631215071, guid: fabb45549d5080c4dbecacff8c9240c0, type: 3}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 0.74509805, g: 0.74509805, b: 0.74509805, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
