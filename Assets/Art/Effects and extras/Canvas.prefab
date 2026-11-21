@@ -584,14 +584,15 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AnimationChangeScreen
   ActivateFadeIn: 0
+  ActivateFadeOut: 0
   Frames:
-  - {fileID: 6746506413522554553, guid: 6f4af4bc52837c44fbd1352178429039, type: 3}
-  - {fileID: 3333300313761984309, guid: 220fbe7ac6f0e764aa6ed4cf5e77ce68, type: 3}
-  - {fileID: -425898475713545660, guid: bc61902ea73cd9245856ae7616e56e0a, type: 3}
-  - {fileID: -2574453255912703879, guid: 990b382f69d671e4b8f7bc8701ce4eb7, type: 3}
-  - {fileID: -6184837568637032274, guid: a05e97cfba4197f49a48084b2d41d71f, type: 3}
-  - {fileID: -3210542636003403105, guid: a8169bf58c177bd44b6b8e3350f11e82, type: 3}
-  - {fileID: 6348869989249071645, guid: 2dd3912faa5be79428311ef3cd81450a, type: 3}
+  - {fileID: 2171798701413795714}
+  - {fileID: 5161082274665975827}
+  - {fileID: 825810236533042133}
+  - {fileID: 71610904095155662}
+  - {fileID: 6166745449329193419}
+  - {fileID: 7579273854122932826}
+  - {fileID: 7151574178970048952}
 --- !u!223 &1489061678513057299
 Canvas:
   m_ObjectHideFlags: 0
