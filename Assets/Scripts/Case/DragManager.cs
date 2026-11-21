@@ -76,6 +76,10 @@ public class DragManager : MonoBehaviour
 
         currentGrabbedObject = top;
         offset = currentGrabbedObject.transform.position - world;
+        // offset stored at full size: it follows the piece when it shrinks / grows, so the piece stays under the cursor
+        float f = Mathf.Max(0.0001f, currentGrabbedObject.ScaleFactor);
+        offset.x /= f;
+        offset.y /= f;
         currentGrabbedObject.OnGrab();
         PlaySfx(Sfx.Grab);
         // baseRot=currentGrabbedObject.transform.rotation;
@@ -89,7 +93,10 @@ public class DragManager : MonoBehaviour
         if (currentGrabbedObject == null) return;
 
         currentGrabbedObject.EndShake();   // back to the real angle before snapping
-        bool snapped = TrySnap(currentGrabbedObject);
+        // Dropped inside the case: it stays there (small) and does not snap to anything
+        bool snapped = false;
+        if (currentGrabbedObject.InCase) currentGrabbedObject.ReleaseZones();
+        else snapped = TrySnap(currentGrabbedObject);
         PlaySfx(Sfx.Release);
         currentGrabbedObject.OnRelease();
         // currentGrabbedObject.transform.rotation=baseRot;
@@ -143,7 +150,10 @@ public class DragManager : MonoBehaviour
     {
         UpdateHover();
         if (currentGrabbedObject != null){
-            currentGrabbedObject.transform.position = GetPointerWorldPos() + offset;
+            Vector3 pointer = GetPointerWorldPos();
+            currentGrabbedObject.SetCase(LevelCase.At(pointer));   // shrinks over the case, grows outside it
+            float f = currentGrabbedObject.ScaleFactor;
+            currentGrabbedObject.transform.position = pointer + new Vector3(offset.x * f, offset.y * f, offset.z);
             // StartCoroutine
             // currentGrabbedObject.transform.eulerAngles=rotationDestiny*Time.deltaTime;
             if(isShaking) currentGrabbedObject.transform.rotation = Quaternion.Lerp(

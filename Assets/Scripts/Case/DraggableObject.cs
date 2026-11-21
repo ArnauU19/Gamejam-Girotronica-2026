@@ -41,12 +41,53 @@ public class DraggableObject : MonoBehaviour
     private readonly List<SpriteRenderer> spriteOutlines = new List<SpriteRenderer>();
     private bool outlineBuilt;
 
+    // Pencil case: fullScale is the size the piece has in the scene; inside the case it is multiplied by the case's pieceScale
+    private Vector3 fullScale;
+    private float scaleFactor = 1f;
+    private float scaleTime = 0.12f;
+    private float caseScale = 0.5f;
+    private LevelCase currentCase;
+    public bool InCase => currentCase != null;
+    public float ScaleFactor => scaleFactor;
+
     private readonly List<SnapZone> usedZones = new();
 
     private void Awake()
     {
         col = GetComponent<Collider2D>();
         shakeSeed = Random.value * 100f;
+    }
+
+    private void Start()
+    {
+        fullScale = transform.localScale;
+        EnsureOutline();                                  // built at full size so the width matches outside the case
+        SetCase(LevelCase.At(transform.position), true);  // pieces placed inside the case start small
+    }
+
+    // ---------- Pencil case ----------
+    /// <summary>Tells the piece which case it is over (null = outside). It shrinks / grows towards the new size.</summary>
+    public void SetCase(LevelCase c, bool instant = false)
+    {
+        currentCase = c;
+        if (c != null) { scaleTime = c.ScaleTime; caseScale = c.PieceScale; }
+        if (instant) ApplyScale(TargetScale);
+    }
+
+    private float TargetScale => currentCase != null ? currentCase.PieceScale : 1f;
+
+    private void Update()
+    {
+        float target = TargetScale;
+        if (Mathf.Approximately(scaleFactor, target)) return;
+        float speed = Mathf.Max(0.01f, Mathf.Abs(1f - caseScale)) / Mathf.Max(0.0001f, scaleTime);
+        ApplyScale(Mathf.MoveTowards(scaleFactor, target, speed * Time.deltaTime));
+    }
+
+    private void ApplyScale(float f)
+    {
+        scaleFactor = f;
+        transform.localScale = fullScale * f;
     }
 
     private void OnDisable()
@@ -181,12 +222,19 @@ public class DraggableObject : MonoBehaviour
     {
         if (hovered)
         {
-            if (!outlineBuilt) { outlineBuilt = true; BuildOutline(); }   // built on first use, so the DragManager settings exist
+            EnsureOutline();
             ApplyOutlineColor();
         }
         foreach (GameObject root in outlineRoots)
             if (root != null && root.activeSelf != hovered)
                 root.SetActive(hovered);
+    }
+
+    private void EnsureOutline()
+    {
+        if (outlineBuilt) return;
+        outlineBuilt = true;
+        BuildOutline();
     }
 
     private void BuildOutline()
