@@ -435,6 +435,7 @@ MonoBehaviour:
   sprite3D: {fileID: 0}
   killZoneTag: killZone
   spawnPoint: {fileID: 0}
+  maxDizzyWait: 3
   gravity: 25
   maxFallSpeed: 20
   airDrag: 1.5
