@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -9,10 +10,14 @@ using UnityEngine;
 ///  - Walking : glued to the floor, following its normal.
 ///  - OnRuler : on a bridge (collider tagged "ruler"). Keeps the direction and gravity it had when it
 ///              left the floor. Outside the panels, if the ground ray hits a ruler whose normal differs
-///              more than slideFlipAngle (50°) from the character's up, the direction flips.
+///              more than slideFlipAngle (50°) from the character's up:
+///                - it is the ruler that caught a fall -> the direction flips and the character slides on
+///                  it (IsSliding -> "Glide" animation);
+///                - it was reached from the ground (floor or another ruler) -> crash: dies (Dizzy).
+///              Any other ruler: it just runs.
 ///  - Falling : no support. Falls with the gravity of the last floor it touched.
-///  - Dead    : the front sensor touched a ruler, or the character touched a "killZone" collider.
-///              It only lasts an instant: the character is teleported to the spawn point and goes on.
+///  - Dead    : the front sensor crashed into a ruler (the Dizzy animation plays once, then respawn)
+///              or the character touched a "killZone" collider (instant respawn).
 ///              The level countdown does not restart.
 ///  - Finished: reached the LevelGoal.
 ///  - Waiting : before the LevelManager countdown ends.
@@ -21,6 +26,9 @@ using UnityEngine;
 ///  - Body touching a panel trigger (enter / stay) -> inside : "2D" sprite object active.
 ///  - Body touching none (exit)                    -> outside: "3D" sprite object active.
 ///  - Outside a panel the character never changes its angle.
+///
+/// Animations: CharacterAnimator (added automatically if there is an Animator in the children)
+/// turns these states and events into the Animator parameters Outside / Fall / Glide / Dizzy / Win.
 ///
 /// Setup: Rigidbody2D (Dynamic, Gravity Scale 0) + body Collider2D marked as Is Trigger,
 /// a FrontSensor child, and the "2D" / "3D" sprite children.
@@ -75,6 +83,8 @@ public class SurfaceWalker : MonoBehaviour
     public string killZoneTag = "killZone";
     [Tooltip("Optional. If empty, the character respawns where it was at the start of the level.")]
     public Transform spawnPoint;
+    [Tooltip("Safety limit (seconds) waiting for the Dizzy animation before respawning.")]
+    public float maxDizzyWait = 3f;
 
     [Header("Gravity (custom)")]
     public float gravity = 25f;
@@ -94,9 +104,17 @@ public class SurfaceWalker : MonoBehaviour
     /// <summary>Raised on every state change (old, new). Use it to drive animations.</summary>
     public event Action<State, State> StateChanged;
 
+    /// <summary>Raised when the front sensor crashes into a ruler (the character dies). Drives "Dizzy".</summary>
+    public event Action FrontalCollision;
+
+    /// <summary>True while sliding: on the steep ruler that flipped the direction. Drives "Glide".</summary>
+    public bool IsSliding => sliding && currentState == State.OnRuler;
+
     public State CurrentState => currentState;
     public bool OutPanel => outPanel;
     public Collider2D BodyCollider { get; private set; }
+    /// <summary>Normal of the ruler under the character while OnRuler (used to tilt the glide sprite).</summary>
+    public Vector2 SurfaceNormal => surfaceNormal;
 
     enum Filter { Any, FloorOnly, RulerOnly }
 
@@ -109,9 +127,12 @@ public class SurfaceWalker : MonoBehaviour
 
     Vector2 gravityDir;
     Vector2 lastGroundNormal;
+    Vector2 surfaceNormal = Vector2.up;
     Vector2 velocity;
     float unsupportedDistance;
     Collider2D flipLatch; // ruler that already flipped the direction (flip only once per ruler)
+    bool sliding;         // on that steep ruler after the flip
+    Collider2D caughtByFall; // ruler that caught the last fall (only that one can be a slide)
 
     Vector2 spawnPosition;
     float spawnRotation;
@@ -128,6 +149,10 @@ public class SurfaceWalker : MonoBehaviour
         rb.gravityScale = 0f; // we do our own gravity
         BodyCollider = GetComponent<Collider2D>();
         frontSensor = GetComponentInChildren<FrontSensor>(true);
+
+        // Animations: add the Animator driver if the character has an Animator and nobody added it yet.
+        if (GetComponent<CharacterAnimator>() == null && GetComponentInChildren<Animator>(true) != null)
+            gameObject.AddComponent<CharacterAnimator>();
         contactFilter = new ContactFilter2D { useTriggers = false };
         spawnPosition = rb.position;
         spawnRotation = rb.rotation;
@@ -254,6 +279,7 @@ public class SurfaceWalker : MonoBehaviour
                 if (Vector2.Angle(hit.normal, up) < wallAngle && hit.distance <= footOffset + groundSnapDistance)
                 {
                     flipLatch = null;
+                    sliding = false;
                     lastGroundNormal = hit.normal;
                     unsupportedDistance = 0f;
                     rb.MovePosition(hit.point + hit.normal * footOffset);
@@ -264,17 +290,30 @@ public class SurfaceWalker : MonoBehaviour
             else
             {
                 unsupportedDistance = 0f;
+                surfaceNormal = hit.normal;
 
                 // Outside the panels: a steep ruler (normal vs our up > slideFlipAngle) flips the
                 // direction. Only once per ruler, otherwise it would flip every frame.
                 float angle = Vector2.Angle(hit.normal, up);
                 if (outPanel && angle > slideFlipAngle && flipLatch != hit.collider)
                 {
+                    // Only a steep ruler the character FELL onto is a slide. Reaching it from the ground
+                    // (floor or another ruler) is a crash.
+                    if (hit.collider != caughtByFall)
+                    {
+                        Die($"ran from the ground onto steep ruler '{hit.collider.name}' ({angle:F0}°)", dizzy: true);
+                        return;
+                    }
+
                     flipLatch = hit.collider;
+                    sliding = true;
                     SetFacing(-facing, $"steep ruler '{hit.collider.name}' ({angle:F0}° > {slideFlipAngle:F0}°)");
                     rb.MovePosition(pos); // do not step into it this frame
                     return;
                 }
+
+                // Sliding = still on the steep ruler that flipped the direction. Any other ruler: running.
+                sliding = flipLatch != null && hit.collider == flipLatch;
 
                 // Settle the feet onto the ruler, only along the gravity axis (never following its normal).
                 float gap = hit.distance - footOffset;
@@ -287,21 +326,25 @@ public class SurfaceWalker : MonoBehaviour
 
         // No ruler under the feet: keep going straight a little, then fall.
         flipLatch = null;
+        sliding = false;
         rb.MovePosition(target);
         RotateTowards(up, dt);
         unsupportedDistance += speed * dt;
         if (unsupportedDistance > edgeTolerance) StartFalling("ruler ended");
     }
 
-    void EnterRuler(string reason)
+    /// <param name="fellOnto">The ruler that caught a fall (null when coming from the ground).</param>
+    void EnterRuler(string reason, Collider2D fellOnto = null)
     {
+        caughtByFall = fellOnto;
         lastGroundNormal = -gravityDir;
+        surfaceNormal = -gravityDir;
         velocity = Vector2.zero;
         unsupportedDistance = 0f;
+        sliding = false;
         SetState(State.OnRuler, reason);
     }
 
-    /// <summary>Changes the walking direction and mirrors the children (sprites, front sensor).</summary>
     /// <summary>Turns the character around (used by the FrontSensor when it touches an eraser).</summary>
     public void FlipDirection(string reason)
     {
@@ -316,6 +359,7 @@ public class SurfaceWalker : MonoBehaviour
         SetFacing(-facing, reason);
     }
 
+    /// <summary>Changes the walking direction and mirrors the children (sprites, front sensor).</summary>
     void SetFacing(int newFacing, string reason)
     {
         newFacing = newFacing < 0 ? -1 : 1;
@@ -357,7 +401,7 @@ public class SurfaceWalker : MonoBehaviour
             {
                 // Caught by a bridge (with clearance). Feet settle on it in WalkOnRuler.
                 rb.MovePosition(origin + gravityDir * Mathf.Min(fallDist, Mathf.Max(0f, hit.distance - footOffset)));
-                EnterRuler($"caught by ruler '{hit.collider.name}'");
+                EnterRuler($"caught by ruler '{hit.collider.name}'", hit.collider);
                 return;
             }
             if (hit.distance <= footOffset + fallDist && Vector2.Dot(hit.normal, -gravityDir) > 0.5f)
@@ -376,6 +420,7 @@ public class SurfaceWalker : MonoBehaviour
         gravityDir = -lastGroundNormal;
         velocity = Forward(lastGroundNormal) * speed;
         unsupportedDistance = 0f;
+        sliding = false;
         SetState(State.Falling, reason);
     }
 
@@ -431,21 +476,48 @@ public class SurfaceWalker : MonoBehaviour
     /// <summary>Called by the FrontSensor child when it touches something.</summary>
     public void OnFrontSensorTouched(Collider2D other)
     {
-        if (IsRuler(other)) Die($"front sensor hit ruler '{other.name}'");
+        if (IsRuler(other)) Die($"front sensor hit ruler '{other.name}'", dizzy: true);
         else if (IsKillZone(other)) Die($"touched killZone '{other.name}'");
     }
 
-    /// <summary>Dies and is instantly teleported to the spawn point. The countdown does not restart.</summary>
-    public void Die(string reason)
+    /// <summary>
+    /// Dies and goes back to the spawn point (the countdown does not restart).
+    /// dizzy = true (frontal crash into a ruler): the character stays where it crashed while the Dizzy
+    /// animation plays once, then respawns. Otherwise (kill zone) it respawns instantly.
+    /// </summary>
+    public void Die(string reason, bool dizzy = false)
     {
         if (currentState == State.Dead || currentState == State.Finished) return;
         // Several colliders can report the same death in the same physics step: only the first counts.
         if (Time.fixedTime == lastRespawnTime) return;
 
-        Debug.Log($"[SurfaceWalker] DIED ({reason}). Respawning.", this);
+        Debug.Log($"[SurfaceWalker] DIED ({reason}).", this);
         velocity = Vector2.zero;
+        sliding = false;
         SetState(State.Dead, reason);
-        Respawn();
+
+        if (dizzy)
+        {
+            if (AudioManager.Instance != null) AudioManager.Instance.PlaySfx(Sfx.Hit);
+            FrontalCollision?.Invoke();
+            StartCoroutine(RespawnAfterDizzy());
+        }
+        else
+        {
+            if (AudioManager.Instance != null) AudioManager.Instance.PlaySfx(Sfx.Respawn);
+            Respawn();
+        }
+    }
+
+    IEnumerator RespawnAfterDizzy()
+    {
+        var anim = GetComponent<CharacterAnimator>();
+        if (anim != null && anim.HasAnimator)
+        {
+            float limit = Time.time + maxDizzyWait;
+            yield return new WaitUntil(() => anim.DizzyDone || Time.time > limit);
+        }
+        if (currentState == State.Dead) Respawn();
     }
 
     void Respawn()
@@ -461,6 +533,8 @@ public class SurfaceWalker : MonoBehaviour
         velocity = Vector2.zero;
         unsupportedDistance = 0f;
         flipLatch = null;
+        sliding = false;
+        caughtByFall = null;
         SetFacing(startFacing, "respawn");
         gravityDir = startGravityDir.sqrMagnitude > 0f ? startGravityDir.normalized : Vector2.down;
         lastGroundNormal = -gravityDir;

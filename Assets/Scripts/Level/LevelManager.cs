@@ -21,8 +21,11 @@ public class LevelManager : MonoBehaviour
 
     [Header("Level end")]
     public string completeText = "Level complete!";
-    [Tooltip("Seconds between reaching the goal and loading the next scene.")]
+    [Tooltip("Seconds between reaching the goal and loading the next scene (only if the character has no Animator; " +
+             "otherwise the next scene loads when the Win animation finished its loops).")]
     public float nextLevelDelay = 1.5f;
+    [Tooltip("Safety limit (seconds) when waiting for the Win animation loops.")]
+    public float maxWinWait = 10f;
 
     [Header("References")]
     [Tooltip("If empty, the SurfaceWalker of the scene is used.")]
@@ -81,7 +84,18 @@ public class LevelManager : MonoBehaviour
 
     IEnumerator LoadNextScene()
     {
-        yield return new WaitForSeconds(nextLevelDelay);
+        // Wait for the Win animation to loop its times (CharacterAnimator.winLoops); without an
+        // animated character, just wait nextLevelDelay.
+        var anim = walker != null ? walker.GetComponent<CharacterAnimator>() : null;
+        if (anim != null && anim.HasAnimator)
+        {
+            float timeout = Time.time + maxWinWait;
+            yield return new WaitUntil(() => anim.WinLoopsDone || Time.time > timeout);
+        }
+        else
+        {
+            yield return new WaitForSeconds(nextLevelDelay);
+        }
 
         int current = SceneManager.GetActiveScene().buildIndex;
         if (current < 0)
