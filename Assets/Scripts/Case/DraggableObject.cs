@@ -40,6 +40,7 @@ public class DraggableObject : MonoBehaviour
     private Material outlineMat;
     private readonly List<SpriteRenderer> spriteOutlines = new List<SpriteRenderer>();
     private bool outlineBuilt;
+    private PieceLook look;   // sprite look (shadow, lift, hover ring); null for old 3D pieces
 
     // Pencil case: fullScale is the size the piece has in the scene; inside the case it is multiplied by the case's pieceScale
     private Vector3 fullScale;
@@ -55,6 +56,7 @@ public class DraggableObject : MonoBehaviour
     private void Awake()
     {
         col = GetComponent<Collider2D>();
+        look = GetComponent<PieceLook>();
         shakeSeed = Random.value * 100f;
     }
 
@@ -125,6 +127,7 @@ public class DraggableObject : MonoBehaviour
         shakeWeight = 0f;
         shaking = true;
         RefreshCollider();
+        if (look != null) look.SetLifted(true);
     }
 
     public void OnRelease()
@@ -133,6 +136,7 @@ public class DraggableObject : MonoBehaviour
         isGrabbed = false;
         EndShake();
         RefreshCollider();
+        if (look != null) look.SetLifted(false);
     }
 
     public void RotateRightClick()
@@ -239,6 +243,15 @@ public class DraggableObject : MonoBehaviour
 
     private void BuildOutline()
     {
+        // Pieces with a PieceLook bring their own hover ring sprite
+        if (look != null && look.OutlineRoot != null)
+        {
+            outlineRoots.Add(look.OutlineRoot);
+            if (look.OutlineRenderers != null) spriteOutlines.AddRange(look.OutlineRenderers);
+            look.OutlineRoot.SetActive(false);
+            return;
+        }
+
         // Collect first: the outline objects must not be outlined themselves
         MeshFilter[] meshes = GetComponentsInChildren<MeshFilter>(true);
         SpriteRenderer spriteSrc = GetComponent<SpriteRenderer>();
@@ -247,7 +260,7 @@ public class DraggableObject : MonoBehaviour
         foreach (MeshFilter mf in meshes)
         {
             MeshRenderer mr = mf.GetComponent<MeshRenderer>();
-            if (mr == null || !mr.enabled || mf.sharedMesh == null) continue;
+            if (mr == null || !mr.enabled || !mf.gameObject.activeInHierarchy || mf.sharedMesh == null) continue;
             if (mat == null) mat = CreateOutlineMaterial();
             if (mat == null) break;
             BuildMeshOutline(mf, mr, mat);
