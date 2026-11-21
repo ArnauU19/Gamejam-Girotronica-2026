@@ -307,7 +307,7 @@ SortingGroup:
   m_Enabled: 1
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 5
+  m_SortingOrder: 7
   m_SortAtRoot: 0
   m_Sort3DAs2D: 0
 --- !u!114 &5658892044494921900
@@ -336,7 +336,6 @@ MonoBehaviour:
   liftShadowAlpha: 0.3
   landTime: 0.2
   landSquash: 0.05
-  restOrder: 5
   liftOrder: 40
 --- !u!114 &45175835550260164
 MonoBehaviour:
