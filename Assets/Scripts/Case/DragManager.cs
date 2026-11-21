@@ -12,11 +12,30 @@ public class DragManager : MonoBehaviour
     [SerializeField] private Camera cam;
     [SerializeField] private LayerMask draggablelayers = ~0;
 
+    [Header("Grab shake (all pieces)")]
+    [SerializeField] private float shakeDegrees = 1.5f;         // max tilt while held
+    [SerializeField] private float shakeSpeed = 18f;            // how fast it trembles
+    [SerializeField] private float shakeBlendTime = 0.12f;      // fade-in of the shake (after grabbing / rotating)
+
+    [Header("Hover outline (all pieces)")]
+    [SerializeField] private Color outlineColor = new Color(1f, 0.92f, 0.35f, 1f);
+    [SerializeField] private float outlineWidth = 0.04f;        // world units
+    [SerializeField] private float outlineDepthPush = 0.02f;    // extra distance behind the model (3D pieces)
+
+    public static DragManager Instance { get; private set; }
+    public float ShakeDegrees => shakeDegrees;
+    public float ShakeSpeed => shakeSpeed;
+    public float ShakeBlendTime => shakeBlendTime;
+    public Color OutlineColor => outlineColor;
+    public float OutlineWidth => outlineWidth;
+    public float OutlineDepthPush => outlineDepthPush;
+
     private DraggableObject currentGrabbedObject;
     private Vector3 offset;
 
     private void Awake()
     {
+        Instance = this;
         if (cam == null) cam = Camera.main;
     }
 
@@ -28,6 +47,11 @@ public class DragManager : MonoBehaviour
 
         click.action.performed += OnClick;
         rightClick.action.performed += OnRightClick;
+    }
+
+    private void OnDestroy()
+    {
+        if (Instance == this) Instance = null;
     }
 
     private void OnDisable()
@@ -64,6 +88,7 @@ public class DragManager : MonoBehaviour
     {
         if (currentGrabbedObject == null) return;
 
+        currentGrabbedObject.EndShake();   // back to the real angle before snapping
         bool snapped = TrySnap(currentGrabbedObject);
         PlaySfx(Sfx.Release);
         currentGrabbedObject.OnRelease();
@@ -116,6 +141,7 @@ public class DragManager : MonoBehaviour
     Coroutine grabEffect=null;
     void Update()
     {
+        UpdateHover();
         if (currentGrabbedObject != null){
             currentGrabbedObject.transform.position = GetPointerWorldPos() + offset;
             // StartCoroutine
@@ -125,6 +151,21 @@ public class DragManager : MonoBehaviour
             rotationDestiny,
             Time.deltaTime * 15f);
         }
+    }
+
+    // Outline on the piece under the pointer (or on the one being held)
+    DraggableObject hovered;
+
+    void UpdateHover()
+    {
+        DraggableObject target = null;
+        if (Time.timeScale > 0f)    // no hover while the game is paused
+            target = currentGrabbedObject != null ? currentGrabbedObject : GetTopDraggableAt(GetPointerWorldPos());
+
+        if (target == hovered) return;
+        if (hovered != null) hovered.SetHovered(false);
+        hovered = target;
+        if (hovered != null) hovered.SetHovered(true);
     }
 
     bool TrySnap(DraggableObject obj)
