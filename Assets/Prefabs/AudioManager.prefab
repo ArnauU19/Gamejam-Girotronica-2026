@@ -196,4 +196,19 @@ MonoBehaviour:
     - {fileID: 8300000, guid: cb5b270e2ae96f44cb0fd3035f278fe8, type: 3}
     volume: 0.7
     pitchRange: {x: 0.75, y: 1.25}
+  - id: 5
+    clips:
+    - {fileID: 8300000, guid: 7feb98ca8451a7d499d5a332dfad1c5b, type: 3}
+    volume: 0.7
+    pitchRange: {x: 1, y: 1}
+  - id: 6
+    clips:
+    - {fileID: 8300000, guid: b5572a6f7927f584cad7f7c9869ad4d7, type: 3}
+    volume: 0.7
+    pitchRange: {x: 1, y: 1}
+  - id: 7
+    clips:
+    - {fileID: 8300000, guid: afafeb0e3899426498aaea832dd44e08, type: 3}
+    volume: 0.7
+    pitchRange: {x: 0.5, y: 1.5}
   sfxVoices: 8

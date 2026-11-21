@@ -50,6 +50,7 @@ public class EraserScript : MonoBehaviour
     {
         if (Time.time - lastBounceTime < cooldown) return;
         lastBounceTime = Time.time;
+        if (AudioManager.Instance != null) AudioManager.Instance.PlaySfx(Sfx.Boing);
 
         if (routine != null) StopCoroutine(routine);
         routine = StartCoroutine(BounceRoutine());
