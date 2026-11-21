@@ -74,13 +74,21 @@ public class PauseMenu : MonoBehaviour
         Time.timeScale = paused ? 0f : 1f;
         if (pausePanel != null) pausePanel.SetActive(paused);
         CloseOptions();
-        if (AudioManager.Instance != null) AudioManager.Instance.SetLowPass(paused);
+        if (AudioManager.Instance != null)
+        {
+            AudioManager.Instance.SetLowPass(paused);
+            AudioManager.Instance.SetSfxPaused(paused);
+        }
     }
 
     private void OnDestroy()
     {
         // Never leave the game frozen or muffled when the scene changes
         Time.timeScale = 1f;
-        if (AudioManager.Instance != null) AudioManager.Instance.SetLowPass(false);
+        if (AudioManager.Instance != null)
+        {
+            AudioManager.Instance.SetLowPass(false);
+            AudioManager.Instance.SetSfxPaused(false);
+        }
     }
 }

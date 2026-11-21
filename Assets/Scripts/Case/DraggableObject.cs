@@ -71,6 +71,7 @@ public class DraggableObject : MonoBehaviour
             StopCoroutine(rotateRoutine);
 
         targetAngle += 90f;
+        if (AudioManager.Instance != null) AudioManager.Instance.PlaySfx(Sfx.Whoosh);
         rotateRoutine = StartCoroutine(RotateRoutine(targetAngle));
         RefreshCollider(); // rotateRoutine is set now -> collider off
     }

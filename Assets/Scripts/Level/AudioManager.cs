@@ -8,6 +8,9 @@ public enum Sfx
     Eat,
     Hit,        // character gets hit (dizzy birds)
     Respawn,
+    Whoosh,     // rotating a piece
+    Steps,      // player walking (played as a loop: PlayLoop / StopLoop)
+    Boing,      // player bounces on the eraser (goma)
 }
 
 [System.Serializable]
@@ -47,6 +50,7 @@ public class AudioManager : MonoBehaviour
     private int nextVoice;
     private Dictionary<Sfx, SfxEntry> sfxLookup;
     private float musicBaseVolume = 1f;
+    private readonly Dictionary<Sfx, AudioSource> loopVoices = new Dictionary<Sfx, AudioSource>();
 
     private void Awake()
     {
@@ -71,14 +75,16 @@ public class AudioManager : MonoBehaviour
         BuildSfxLookup();
         LoadVolumes();
 
-        playLevelSong();
+        playMainMenuSong();   // the game starts on the menu song; MainMenu.Play switches to the level song
     }
 
     public void playMainMenuSong()
     {
         if (mainMenuSong == null)
             return;
-        
+        if (audioManagerSource.clip == mainMenuSong && audioManagerSource.isPlaying)
+            return;     // already playing, do not restart it
+
         audioManagerSource.Stop();
         audioManagerSource.clip = mainMenuSong;
         audioManagerSource.Play();
@@ -87,6 +93,8 @@ public class AudioManager : MonoBehaviour
     public void playLevelSong()
     {
         if (levelSong == null)
+            return;
+        if (audioManagerSource.clip == levelSong && audioManagerSource.isPlaying)
             return;
 
         audioManagerSource.Stop();
@@ -126,6 +134,55 @@ public class AudioManager : MonoBehaviour
         voice.Play();
     }
 
+    // ---------- Looped SFX (e.g. footsteps) ----------
+    // The clip assigned to the entry must loop cleanly. Stop it with StopLoop.
+    public void PlayLoop(Sfx id)
+    {
+        if (sfxLookup == null || !sfxLookup.TryGetValue(id, out SfxEntry entry))
+            return;
+        if (entry.clips == null || entry.clips.Length == 0)
+            return;
+
+        AudioClip clip = entry.clips[Random.Range(0, entry.clips.Length)];
+        if (clip == null)
+            return;
+
+        if (!loopVoices.TryGetValue(id, out AudioSource src))
+        {
+            GameObject go = new GameObject($"SFX_Loop_{id}");
+            go.transform.SetParent(transform);
+            src = go.AddComponent<AudioSource>();
+            src.playOnAwake = false;
+            src.loop = true;
+            loopVoices[id] = src;
+        }
+
+        if (src.isPlaying)
+            return;
+
+        src.clip = clip;
+        src.volume = entry.volume * SfxVolume;
+        src.pitch = Random.Range(entry.pitchRange.x, entry.pitchRange.y);
+        src.Play();
+    }
+
+    public void StopLoop(Sfx id)
+    {
+        if (loopVoices.TryGetValue(id, out AudioSource src))
+            src.Stop();
+    }
+
+    // Pause menu: freezes / resumes every SFX voice (the music keeps playing, only filtered)
+    public void SetSfxPaused(bool paused)
+    {
+        if (sfxPool != null)
+            foreach (AudioSource v in sfxPool)
+                if (paused) v.Pause(); else v.UnPause();
+
+        foreach (AudioSource v in loopVoices.Values)
+            if (paused) v.Pause(); else v.UnPause();
+    }
+
     // ---------- Volume ----------
     public void SetMasterVolume(float value)
     {
@@ -146,6 +203,12 @@ public class AudioManager : MonoBehaviour
     {
         SfxVolume = Mathf.Clamp01(value);
         PlayerPrefs.SetFloat(SfxVolumeKey, SfxVolume);
+
+        // Looped voices are already playing: update their volume now
+        if (sfxLookup != null)
+            foreach (var kv in loopVoices)
+                if (sfxLookup.TryGetValue(kv.Key, out SfxEntry e))
+                    kv.Value.volume = e.volume * SfxVolume;
     }
 
     private void LoadVolumes()

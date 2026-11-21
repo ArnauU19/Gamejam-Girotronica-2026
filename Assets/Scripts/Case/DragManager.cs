@@ -1,3 +1,6 @@
+using System.Collections;
+using Unity.Mathematics;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -51,6 +54,10 @@ public class DragManager : MonoBehaviour
         offset = currentGrabbedObject.transform.position - world;
         currentGrabbedObject.OnGrab();
         PlaySfx(Sfx.Grab);
+        // baseRot=currentGrabbedObject.transform.rotation;
+        // isShaking=true;
+        // if(grabEffect==null)grabEffect= StartCoroutine(grabShake());
+
     }
 
     void OnClickCanceled()
@@ -60,21 +67,64 @@ public class DragManager : MonoBehaviour
         bool snapped = TrySnap(currentGrabbedObject);
         PlaySfx(Sfx.Release);
         currentGrabbedObject.OnRelease();
+        // currentGrabbedObject.transform.rotation=baseRot;
+
         currentGrabbedObject = null;
+
+       /*  isShaking=false;
+        StopCoroutine(grabEffect);
+
+
+        grabEffect= null; */
+
+        // baseRot=quaternion.identity;
+    }
+    Quaternion rotationDestiny= Quaternion.identity;
+    bool isShaking=false;
+    // Quaternion baseRot= Quaternion.identity;
+    IEnumerator grabShake()
+    {
+        quaternion rotbase=currentGrabbedObject.transform.rotation;
+        float off= 2f;
+        while (isShaking)
+        {
+            rotationDestiny=rotbase* Quaternion.Euler(0,0,off);
+            yield return new WaitForSecondsRealtime(0.2f);
+            off=off*-1;
+        }
+        currentGrabbedObject.transform.rotation=rotbase;
+        // yield return null;
     }
 
     void OnRightClick(InputAction.CallbackContext context)
     {
         if (context.ReadValueAsButton())
         {
-            if(currentGrabbedObject != null)
+            if(currentGrabbedObject != null){
+                // StopCoroutine(grabEffect);
+                // isShaking=false;
+                // currentGrabbedObject.transform.rotation=baseRot;
                 currentGrabbedObject.RotateRightClick();
+                // baseRot=currentGrabbedObject.transform.rotation;
+                // isShaking=true;
+                // if(grabEffect==null)grabEffect= StartCoroutine(grabShake());
+
+
+            }
         }
     }
+    Coroutine grabEffect=null;
     void Update()
     {
-        if (currentGrabbedObject != null)
+        if (currentGrabbedObject != null){
             currentGrabbedObject.transform.position = GetPointerWorldPos() + offset;
+            // StartCoroutine
+            // currentGrabbedObject.transform.eulerAngles=rotationDestiny*Time.deltaTime;
+            if(isShaking) currentGrabbedObject.transform.rotation = Quaternion.Lerp(
+            currentGrabbedObject.transform.rotation,
+            rotationDestiny,
+            Time.deltaTime * 15f);
+        }
     }
 
     bool TrySnap(DraggableObject obj)

@@ -210,7 +210,23 @@ public class SurfaceWalker : MonoBehaviour
         currentState = next;
         if (logStateChanges)
             Debug.Log($"[SurfaceWalker] {prev} -> {next} ({reason}) outPanel={outPanel} gravity={gravityDir}", this);
+        UpdateStepsSound(next);
         StateChanged?.Invoke(prev, next);
+    }
+
+    // Footsteps loop only while walking on the floor or on a ruler. Falling, crash (Dead),
+    // eating (Finished) and waiting stop it.
+    void UpdateStepsSound(State state)
+    {
+        if (AudioManager.Instance == null) return;
+        if (state == State.Walking || state == State.OnRuler) AudioManager.Instance.PlayLoop(Sfx.Steps);
+        else AudioManager.Instance.StopLoop(Sfx.Steps);
+    }
+
+    void OnDisable()
+    {
+        // The AudioManager survives scene changes: never leave the loop playing
+        if (AudioManager.Instance != null) AudioManager.Instance.StopLoop(Sfx.Steps);
     }
 
     // ------------------------------------------------------------------ Walking (floor)
@@ -498,10 +514,15 @@ public class SurfaceWalker : MonoBehaviour
 
         if (dizzy)
         {
+            if (AudioManager.Instance != null) AudioManager.Instance.PlaySfx(Sfx.Hit);
             FrontalCollision?.Invoke();
             StartCoroutine(RespawnAfterDizzy());
         }
-        else Respawn();
+        else
+        {
+            if (AudioManager.Instance != null) AudioManager.Instance.PlaySfx(Sfx.Respawn);
+            Respawn();
+        }
     }
 
     IEnumerator RespawnAfterDizzy()
