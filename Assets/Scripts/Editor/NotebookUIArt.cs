@@ -54,9 +54,11 @@ public static class NotebookUIArt
         Debug.Log("[NotebookUIArt] UI sprites generated in " + Folder);
     }
 
-    static void Save(string name, Raster r, Vector4 border, TextureWrapMode wrap = TextureWrapMode.Clamp)
+    static void Save(string name, Raster r, Vector4 border, TextureWrapMode wrap = TextureWrapMode.Clamp) =>
+        SaveSprite($"{Folder}/{name}.png", r, border, wrap);
+
+    internal static void SaveSprite(string path, Raster r, Vector4 border, TextureWrapMode wrap = TextureWrapMode.Clamp, int maxSize = 2048)
     {
-        string path = $"{Folder}/{name}.png";
         File.WriteAllBytes(path, r.EncodePNG());
         AssetDatabase.ImportAsset(path, ImportAssetOptions.ForceSynchronousImport);
         var imp = (TextureImporter)AssetImporter.GetAtPath(path);
@@ -69,6 +71,7 @@ public static class NotebookUIArt
         imp.wrapMode = wrap;
         imp.filterMode = FilterMode.Bilinear;
         imp.textureCompression = TextureImporterCompression.Uncompressed;
+        imp.maxTextureSize = maxSize;
         var settings = new TextureImporterSettings();
         imp.ReadTextureSettings(settings);
         settings.spriteMeshType = SpriteMeshType.FullRect;
@@ -290,7 +293,7 @@ public static class NotebookUIArt
         return pts;
     }
 
-    static List<Vector2> RoundRect(Rect r, float radius, float stepDeg = 10f)
+    internal static List<Vector2> RoundRect(Rect r, float radius, float stepDeg = 10f)
     {
         var pts = new List<Vector2>();
         var centers = new[]
@@ -313,7 +316,7 @@ public static class NotebookUIArt
         return o;
     }
 
-    static List<Vector2> Offset(List<Vector2> pts, Vector2 o)
+    internal static List<Vector2> Offset(List<Vector2> pts, Vector2 o)
     {
         var r = new List<Vector2>(pts.Count);
         foreach (var p in pts) r.Add(p + o);
@@ -322,7 +325,7 @@ public static class NotebookUIArt
 
     // ------------------------------------------------------------------ noise
 
-    static float Hash(int x, int y, int seed)
+    internal static float Hash(int x, int y, int seed)
     {
         unchecked
         {
@@ -333,7 +336,7 @@ public static class NotebookUIArt
         }
     }
 
-    static float ValueNoise(float x, float y, int seed)
+    internal static float ValueNoise(float x, float y, int seed)
     {
         int xi = Mathf.FloorToInt(x), yi = Mathf.FloorToInt(y);
         float fx = x - xi, fy = y - yi;
@@ -346,7 +349,7 @@ public static class NotebookUIArt
 
     // ------------------------------------------------------------------ raster
 
-    class Raster
+    internal class Raster
     {
         public readonly int W, H;
         readonly Color[] px;
@@ -356,6 +359,8 @@ public static class NotebookUIArt
             W = w; H = h;
             px = new Color[w * h];
         }
+
+        public void Set(int x, int y, Color c) => px[y * W + x] = c;
 
         public void Blend(int x, int y, Color c, float cov)
         {
