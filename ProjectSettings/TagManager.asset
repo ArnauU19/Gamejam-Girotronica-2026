@@ -5,6 +5,7 @@ TagManager:
   serializedVersion: 3
   tags:
   - ruler
+  - killZone
   layers:
   - Default
   - TransparentFX

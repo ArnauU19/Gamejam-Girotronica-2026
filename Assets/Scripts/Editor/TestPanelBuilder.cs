@@ -117,7 +117,7 @@ public static class TestPanelBuilder
         Debug.Log($"[TestPanelBuilder] Character '{player.name}' set up and scene saved.");
     }
 
-    static void SetupPlayer(GameObject player, Panel startPanel)
+    internal static void SetupPlayer(GameObject player, Panel startPanel)
     {
         Undo.RecordObject(player.transform, "Setup Player");
         player.transform.localScale = new Vector3(0.5f, 0.5f, 1f); // capsule 0.5 x 1 units
@@ -174,7 +174,7 @@ public static class TestPanelBuilder
         if (startPanel != null) walker.startPanel = startPanel;
     }
 
-    static GameObject FindPlayer()
+    internal static GameObject FindPlayer()
     {
         var walker = Object.FindAnyObjectByType<SurfaceWalker>();
         if (walker != null) return walker.gameObject;
@@ -184,7 +184,7 @@ public static class TestPanelBuilder
         return go;
     }
 
-    static Panel FindClosestPanel(Vector3 pos)
+    internal static Panel FindClosestPanel(Vector3 pos)
     {
         Panel best = null;
         float bestDist = float.MaxValue;
@@ -197,14 +197,14 @@ public static class TestPanelBuilder
         return best;
     }
 
-    static void SaveScene()
+    internal static void SaveScene()
     {
         var scene = EditorSceneManager.GetActiveScene();
         EditorSceneManager.MarkSceneDirty(scene);
         EditorSceneManager.SaveScene(scene);
     }
 
-    static GameObject CreateChild(string name, Transform parent)
+    internal static GameObject CreateChild(string name, Transform parent)
     {
         var go = new GameObject(name);
         Undo.RegisterCreatedObjectUndo(go, "Create " + name);
@@ -212,7 +212,7 @@ public static class TestPanelBuilder
         return go;
     }
 
-    static void CreateTrigger(string name, Transform parent, Vector2 pos, Vector2 size, PanelTrigger.Kind kind)
+    internal static void CreateTrigger(string name, Transform parent, Vector2 pos, Vector2 size, PanelTrigger.Kind kind)
     {
         var go = CreateChild(name, parent);
         go.transform.localPosition = pos;
@@ -224,7 +224,7 @@ public static class TestPanelBuilder
         trigger.panel = parent.GetComponent<Panel>();
     }
 
-    static void SetupLine(LineRenderer line, Material mat, float width, Color color)
+    internal static void SetupLine(LineRenderer line, Material mat, float width, Color color)
     {
         line.sharedMaterial = mat;
         line.useWorldSpace = false;
@@ -235,7 +235,7 @@ public static class TestPanelBuilder
         line.sortingOrder = 5;
     }
 
-    static T GetOrAdd<T>(GameObject go) where T : Component
+    internal static T GetOrAdd<T>(GameObject go) where T : Component
     {
         var c = go.GetComponent<T>();
         if (c != null)
@@ -246,7 +246,7 @@ public static class TestPanelBuilder
         return Undo.AddComponent<T>(go);
     }
 
-    static Material LoadLineMaterial()
+    internal static Material LoadLineMaterial()
     {
         var mat = AssetDatabase.LoadAssetAtPath<Material>(
             "Packages/com.unity.render-pipelines.universal/Runtime/Materials/Sprite-Unlit-Default.mat");
@@ -254,7 +254,7 @@ public static class TestPanelBuilder
         return mat;
     }
 
-    static Sprite LoadCapsuleSprite()
+    internal static Sprite LoadCapsuleSprite()
     {
         string path = AssetDatabase.GUIDToAssetPath(CapsuleSpriteGuid);
         return string.IsNullOrEmpty(path) ? null : AssetDatabase.LoadAssetAtPath<Sprite>(path);
