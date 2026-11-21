@@ -330,7 +330,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0.5, y: 0.5, z: 1}
+  m_LocalScale: {x: 0.8, y: 0.8, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 4673622214922122160}
@@ -421,9 +421,9 @@ MonoBehaviour:
   groundMask:
     serializedVersion: 2
     m_Bits: 4294967295
-  footOffset: 1
-  bodyHalfWidth: 0.25
-  groundSnapDistance: 1.1
+  footOffset: 1.6
+  bodyHalfWidth: 0.32
+  groundSnapDistance: 0.5
   wallAngle: 60
   edgeTolerance: 0.3
   rulerTag: ruler
