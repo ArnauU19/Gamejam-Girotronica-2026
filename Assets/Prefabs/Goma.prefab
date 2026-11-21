@@ -757,7 +757,7 @@ MonoBehaviour:
   - {fileID: 7908299336458790028}
   - {fileID: 7876201305385622342}
   - {fileID: 3006015832474713329}
-  - {fileID: 0}
+  - {fileID: 8934644324916574930}
   rotateDuration: 0.25
   overshootDegrees: 12
   overshootSplit: 0.65

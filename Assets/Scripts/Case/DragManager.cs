@@ -80,6 +80,10 @@ public class DragManager : MonoBehaviour
         float f = Mathf.Max(0.0001f, currentGrabbedObject.ScaleFactor);
         offset.x /= f;
         offset.y /= f;
+        // ...and in the piece's own frame: when it rotates, the grabbed point turns with it and stays under the cursor
+        float grabZ = offset.z;
+        offset = Quaternion.Inverse(currentGrabbedObject.transform.rotation) * new Vector3(offset.x, offset.y, 0f);
+        offset.z = grabZ;
         currentGrabbedObject.OnGrab();
         PlaySfx(Sfx.Grab);
         // baseRot=currentGrabbedObject.transform.rotation;
@@ -92,16 +96,21 @@ public class DragManager : MonoBehaviour
     {
         if (currentGrabbedObject == null) return;
 
-        currentGrabbedObject.EndShake();   // back to the real angle before snapping
-        // Dropped inside the case: it stays there (small) and does not snap to anything
-        bool snapped = false;
-        if (currentGrabbedObject.InCase) currentGrabbedObject.ReleaseZones();
-        else snapped = TrySnap(currentGrabbedObject);
-        PlaySfx(Sfx.Release);
-        currentGrabbedObject.OnRelease();
+        DraggableObject obj = currentGrabbedObject;
+        currentGrabbedObject = null;   // the piece is always let go, even if something below fails
+        try
+        {
+            obj.EndShake();   // back to the real angle before snapping
+            // Dropped inside the case: it stays there (small) and does not snap to anything
+            if (obj.InCase) obj.ReleaseZones();
+            else TrySnap(obj);
+            PlaySfx(Sfx.Release);
+        }
+        finally
+        {
+            obj.OnRelease();
+        }
         // currentGrabbedObject.transform.rotation=baseRot;
-
-        currentGrabbedObject = null;
 
        /*  isShaking=false;
         StopCoroutine(grabEffect);
@@ -153,7 +162,9 @@ public class DragManager : MonoBehaviour
             Vector3 pointer = GetPointerWorldPos();
             currentGrabbedObject.SetCase(LevelCase.At(pointer));   // shrinks over the case, grows outside it
             float f = currentGrabbedObject.ScaleFactor;
-            currentGrabbedObject.transform.position = pointer + new Vector3(offset.x * f, offset.y * f, offset.z);
+            // the piece turns around the point under the cursor (the "hand"), not around its centre
+            Vector3 o = currentGrabbedObject.transform.rotation * new Vector3(offset.x * f, offset.y * f, 0f);
+            currentGrabbedObject.transform.position = pointer + new Vector3(o.x, o.y, offset.z);
             // StartCoroutine
             // currentGrabbedObject.transform.eulerAngles=rotationDestiny*Time.deltaTime;
             if(isShaking) currentGrabbedObject.transform.rotation = Quaternion.Lerp(
@@ -188,6 +199,7 @@ public class DragManager : MonoBehaviour
 
         foreach(SnapTip tip in obj.Tips)
         {
+            if (tip == null) continue;   // an empty slot in the Tips list must not break the drop
             foreach(SnapZone zone in tip.ZonesInside)
             {
                 if (!zone.isFree) continue;
