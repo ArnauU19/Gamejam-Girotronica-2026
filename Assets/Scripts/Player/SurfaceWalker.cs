@@ -192,7 +192,7 @@ public class SurfaceWalker : MonoBehaviour
         if (panelsChanged)
         {
             panelsChanged = false;
-            SetOutPanel(panelsTouched.Count == 0);
+            SetOutPanel(panelsTouched.Count == 0, playSound: true);
         }
 
         switch (currentState)
@@ -477,9 +477,12 @@ public class SurfaceWalker : MonoBehaviour
         if (changed) panelsChanged = true;
     }
 
-    void SetOutPanel(bool value)
+    /// <param name="playSound">Paper sound when it really walks out of / into a panel (not on start or respawn).</param>
+    void SetOutPanel(bool value, bool playSound = false)
     {
         bool changed = value != outPanel;
+        if (changed && playSound && AudioManager.Instance != null)
+            AudioManager.Instance.PlaySfx(Sfx.Paper);
         outPanel = value;
         if (sprite2D != null) sprite2D.SetActive(!outPanel);
         if (sprite3D != null) sprite3D.SetActive(outPanel);

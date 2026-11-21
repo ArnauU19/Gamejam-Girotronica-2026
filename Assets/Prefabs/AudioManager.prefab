@@ -211,4 +211,9 @@ MonoBehaviour:
     - {fileID: 8300000, guid: afafeb0e3899426498aaea832dd44e08, type: 3}
     volume: 0.7
     pitchRange: {x: 0.5, y: 1.5}
+  - id: 8
+    clips:
+    - {fileID: 8300000, guid: fb00f0683d30a594eb552285cbe6ce67, type: 3}
+    volume: 0.7
+    pitchRange: {x: 0.95, y: 1.05}
   sfxVoices: 8

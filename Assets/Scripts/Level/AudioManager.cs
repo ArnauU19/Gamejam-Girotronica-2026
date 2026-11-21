@@ -11,6 +11,7 @@ public enum Sfx
     Whoosh,     // rotating a piece
     Steps,      // player walking (played as a loop: PlayLoop / StopLoop)
     Boing,      // player bounces on the eraser (goma)
+    Paper,      // player goes out of a comic panel or into one
 }
 
 [System.Serializable]
