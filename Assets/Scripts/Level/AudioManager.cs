@@ -99,6 +99,13 @@ public class AudioManager : MonoBehaviour
         lowCutFilter.enabled = !lowCutFilter.enabled; 
     }
 
+    // Muffles only the music (pause menu). SFX voices are children, so they are not filtered.
+    public void SetLowPass(bool on)
+    {
+        if (lowCutFilter != null)
+            lowCutFilter.enabled = on;
+    }
+
     public void PlaySfx(Sfx id)
     {
         if (sfxLookup == null || !sfxLookup.TryGetValue(id, out SfxEntry entry))
