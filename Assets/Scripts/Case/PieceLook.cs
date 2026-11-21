@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Rendering;
 
@@ -34,8 +35,16 @@ public class PieceLook : MonoBehaviour
     [SerializeField] private float landSquash = 0.05f;
 
     [Header("Sorting (SortingGroup order)")]
-    [SerializeField] private int restOrder = 5;     // above the comic panels (0), below the character
     [SerializeField] private int liftOrder = 40;    // above everything while held
+
+    // Resting pieces: above the comic panels (0) and their floor lines (5), below the character (10).
+    // Between pieces, the last one put down is drawn on top: same order, but a bit closer to the camera (z).
+    public const int RestOrder = 7;
+    private const float StackStepZ = 0.01f;
+    private static readonly List<PieceLook> stack = new List<PieceLook>();
+
+    /// <summary>0 = bottom piece; higher = drawn above (last put down).</summary>
+    public int StackIndex => stack.IndexOf(this);
 
     public GameObject OutlineRoot => outlineRoot;
     public SpriteRenderer[] OutlineRenderers => outlineRenderers;
@@ -64,24 +73,50 @@ public class PieceLook : MonoBehaviour
         group = GetComponent<SortingGroup>();
         drag = GetComponent<DraggableObject>();
         if (visual != null) visualBase = visual.localScale;
-        group.sortingOrder = restOrder;
+        group.sortingOrder = RestOrder;
     }
 
-    private void OnEnable() { Apply(); }
+    private void OnEnable()
+    {
+        if (!stack.Contains(this)) stack.Add(this);
+        ApplyStack();
+        Apply();
+    }
+
+    private void OnDisable() { stack.Remove(this); }
+
+    /// <summary>Puts this piece on top of the other resting pieces.</summary>
+    public void BringToFront()
+    {
+        stack.Remove(this);
+        stack.Add(this);
+        ApplyStack();
+    }
+
+    private static void ApplyStack()
+    {
+        for (int i = 0; i < stack.Count; i++)
+        {
+            Transform t = stack[i].transform;
+            Vector3 p = t.position;
+            p.z = -StackStepZ * (i + 1);
+            t.position = p;
+        }
+    }
 
     private void OnValidate()
     {
         // so the order is right in the editor too, not only while playing
         var g = GetComponent<SortingGroup>();
-        if (g != null && !lifted) g.sortingOrder = restOrder;
+        if (g != null && !lifted) g.sortingOrder = RestOrder;
     }
 
     public void SetLifted(bool on)
     {
         if (lifted == on) return;
         lifted = on;
-        if (!on) landT = 0f;
-        if (group != null) group.sortingOrder = on ? liftOrder : restOrder;
+        if (!on) { landT = 0f; BringToFront(); }   // the piece just put down goes on top of the others
+        if (group != null) group.sortingOrder = on ? liftOrder : RestOrder;
     }
 
     private void LateUpdate()

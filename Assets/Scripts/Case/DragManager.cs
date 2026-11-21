@@ -1,6 +1,3 @@
-using System.Collections;
-using Unity.Mathematics;
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -86,10 +83,6 @@ public class DragManager : MonoBehaviour
         offset.z = grabZ;
         currentGrabbedObject.OnGrab();
         PlaySfx(Sfx.Grab);
-        // baseRot=currentGrabbedObject.transform.rotation;
-        // isShaking=true;
-        // if(grabEffect==null)grabEffect= StartCoroutine(grabShake());
-
     }
 
     void OnClickCanceled()
@@ -110,51 +103,16 @@ public class DragManager : MonoBehaviour
         {
             obj.OnRelease();
         }
-        // currentGrabbedObject.transform.rotation=baseRot;
-
-       /*  isShaking=false;
-        StopCoroutine(grabEffect);
-
-
-        grabEffect= null; */
-
-        // baseRot=quaternion.identity;
-    }
-    Quaternion rotationDestiny= Quaternion.identity;
-    bool isShaking=false;
-    // Quaternion baseRot= Quaternion.identity;
-    IEnumerator grabShake()
-    {
-        quaternion rotbase=currentGrabbedObject.transform.rotation;
-        float off= 2f;
-        while (isShaking)
-        {
-            rotationDestiny=rotbase* Quaternion.Euler(0,0,off);
-            yield return new WaitForSecondsRealtime(0.2f);
-            off=off*-1;
-        }
-        currentGrabbedObject.transform.rotation=rotbase;
-        // yield return null;
     }
 
     void OnRightClick(InputAction.CallbackContext context)
     {
         if (context.ReadValueAsButton())
         {
-            if(currentGrabbedObject != null){
-                // StopCoroutine(grabEffect);
-                // isShaking=false;
-                // currentGrabbedObject.transform.rotation=baseRot;
+            if (currentGrabbedObject != null)
                 currentGrabbedObject.RotateRightClick();
-                // baseRot=currentGrabbedObject.transform.rotation;
-                // isShaking=true;
-                // if(grabEffect==null)grabEffect= StartCoroutine(grabShake());
-
-
-            }
         }
     }
-    Coroutine grabEffect=null;
     void Update()
     {
         UpdateHover();
@@ -165,12 +123,6 @@ public class DragManager : MonoBehaviour
             // the piece turns around the point under the cursor (the "hand"), not around its centre
             Vector3 o = currentGrabbedObject.transform.rotation * new Vector3(offset.x * f, offset.y * f, 0f);
             currentGrabbedObject.transform.position = pointer + new Vector3(o.x, o.y, offset.z);
-            // StartCoroutine
-            // currentGrabbedObject.transform.eulerAngles=rotationDestiny*Time.deltaTime;
-            if(isShaking) currentGrabbedObject.transform.rotation = Quaternion.Lerp(
-            currentGrabbedObject.transform.rotation,
-            rotationDestiny,
-            Time.deltaTime * 15f);
         }
     }
 
@@ -247,7 +199,9 @@ public class DragManager : MonoBehaviour
             if (!hit.TryGetComponent(out DraggableObject d)) continue;
 
             int order = 0;
-            if (hit.TryGetComponent(out SpriteRenderer sr))
+            if (hit.TryGetComponent(out PieceLook look))
+                order = 1000000 + look.StackIndex;      // sprite pieces: the one drawn on top is picked
+            else if (hit.TryGetComponent(out SpriteRenderer sr))
                 order = sr.sortingLayerID * 1000 + sr.sortingOrder;
 
             if (order >= bestOrder)
