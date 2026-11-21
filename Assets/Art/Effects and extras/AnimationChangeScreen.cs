@@ -56,7 +56,7 @@ public class AnimationChangeScreen : MonoBehaviour
         // List<GameObject> inverselist= Frames;
         // inverselist=Frames.inver 
         // foreach (var item in Frames)
-            Frames.Last().SetActive(true);
+        Frames.Last().SetActive(true);
         
 
         GameObject ant=null;
