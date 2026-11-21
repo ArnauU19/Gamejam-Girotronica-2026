@@ -83,14 +83,14 @@ public static class LevelUIBuilder
         text.verticalOverflow = VerticalWrapMode.Overflow;
         text.color = new Color(0.12f, 0.12f, 0.12f);
         text.raycastTarget = false; // never block clicks/drags on the rulers
-        text.text = "5";
+        text.text = "3";
         var outline = TestPanelBuilder.GetOrAdd<Outline>(textGo);
         outline.effectColor = Color.white;
         outline.effectDistance = new Vector2(5f, -5f);
 
         Undo.RecordObject(manager, "Setup LevelManager");
         manager.countdownText = text;
-        manager.countdownSeconds = 5f;
+        manager.countdownSeconds = 3f;
         if (manager.walker == null) manager.walker = Object.FindAnyObjectByType<SurfaceWalker>();
         return manager;
     }

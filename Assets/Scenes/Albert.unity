@@ -631,6 +631,12 @@ MonoBehaviour:
   draggablelayers:
     serializedVersion: 2
     m_Bits: 4294967295
+  shakeDegrees: 1.5
+  shakeSpeed: 18
+  shakeBlendTime: 0.12
+  outlineColor: {r: 0, g: 0.012855728, b: 0.4943396, a: 1}
+  outlineWidth: 0.04
+  outlineDepthPush: 0.02
 --- !u!1 &1190108639
 GameObject:
   m_ObjectHideFlags: 0
@@ -970,6 +976,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4c48b056f1bf84846bd91022dfb32b06, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::LevelCase
+  pieceScale: 0.5
+  scaleTime: 0.12
 --- !u!1001 &4980312828378538860
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -996,7 +1004,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2936459828030286160, guid: bfcb24e49fd3f83489a7761fad68f767, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -4.2
+      value: -5.47
       objectReference: {fileID: 0}
     - target: {fileID: 2936459828030286160, guid: bfcb24e49fd3f83489a7761fad68f767, type: 3}
       propertyPath: m_LocalPosition.y
@@ -1167,6 +1175,18 @@ PrefabInstance:
     - target: {fileID: 5120417226370239726, guid: b9627f1d62582f1439c9b9298d3bca81, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5269183431598649880, guid: b9627f1d62582f1439c9b9298d3bca81, type: 3}
+      propertyPath: outlineColor.b
+      value: 0.554717
+      objectReference: {fileID: 0}
+    - target: {fileID: 5269183431598649880, guid: b9627f1d62582f1439c9b9298d3bca81, type: 3}
+      propertyPath: outlineColor.g
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5269183431598649880, guid: b9627f1d62582f1439c9b9298d3bca81, type: 3}
+      propertyPath: outlineColor.r
+      value: 0.007101754
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

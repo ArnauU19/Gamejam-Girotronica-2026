@@ -19,6 +19,7 @@ public class OptionsMenu : MonoBehaviour
     public Text sfxValueText;
 
     private bool listenersAdded;
+    private float lastSfxPreview = -1f;
 
     private void Awake()
     {
@@ -78,6 +79,13 @@ public class OptionsMenu : MonoBehaviour
         if (AudioManager.Instance != null) AudioManager.Instance.SetSfxVolume(value);
         else PlayerPrefs.SetFloat(AudioManager.SfxVolumeKey, value);
         SetLabel(sfxValueText, value);
+
+        // Short preview so the player hears the new effects volume (not on every drag step)
+        if (AudioManager.Instance != null && Time.unscaledTime - lastSfxPreview > 0.15f)
+        {
+            lastSfxPreview = Time.unscaledTime;
+            AudioManager.Instance.PlaySfx(Sfx.Grab);
+        }
     }
 
     private static void SetLabel(Text label, float value)

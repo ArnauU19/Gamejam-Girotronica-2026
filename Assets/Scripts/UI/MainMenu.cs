@@ -50,7 +50,7 @@ public class MainMenu : MonoBehaviour
     public void Play()
     {
         if (AudioManager.Instance != null) AudioManager.Instance.playLevelSong();
-        SceneManager.LoadScene(firstLevelScene);
+        SceneTransition.Load(firstLevelScene);
     }
 
     public void OpenOptions()
