@@ -56,6 +56,7 @@ public class DragManager : MonoBehaviour
     {
         if (currentGrabbedObject == null) return;
 
+        TrySnap(currentGrabbedObject);
         currentGrabbedObject.OnRelease();
         currentGrabbedObject = null;
     }
@@ -72,6 +73,38 @@ public class DragManager : MonoBehaviour
     {
         if (currentGrabbedObject != null)
             currentGrabbedObject.transform.position = GetPointerWorldPos() + offset;
+    }
+
+    void TrySnap(DraggableObject obj)
+    {
+        obj.ReleaseZones();
+
+        SnapTip bestTip = null;
+        SnapZone bestZone = null;
+        float bestDist = float.MaxValue;
+
+        foreach(SnapTip tip in obj.Tips)
+        {
+            foreach(SnapZone zone in tip.ZonesInside)
+            {
+                if (!zone.isFree) continue;
+
+                float d = Vector2.Distance(tip.transform.position, zone.Position);
+                if(d < bestDist)
+                {
+                    bestDist = d;
+                    bestTip = tip;
+                    bestZone = zone;
+                }
+            }
+        }
+
+        if (bestZone == null) return;
+
+        Vector3 delta = bestZone.Position - bestTip.transform.position;
+        delta.z = 0;
+        obj.transform.position += delta;
+        obj.OccupyZone(bestZone);
     }
 
     Vector3 GetPointerWorldPos()
