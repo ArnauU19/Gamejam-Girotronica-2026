@@ -328,9 +328,7 @@ public static class NotebookUIBuilder
         var manager = Object.FindAnyObjectByType<LevelManager>();
         if (manager == null || manager.countdownText == null) manager = LevelUIBuilder.AddToOpenScene();
         var so = new SerializedObject(manager);
-        so.FindProperty("goText").stringValue = "Som-hi!";
         so.FindProperty("countdownSeconds").floatValue = 3f;
-        so.FindProperty("completeText").stringValue = "Nivell superat!";
         so.ApplyModifiedPropertiesWithoutUndo();
 
         var text = manager.countdownText;
