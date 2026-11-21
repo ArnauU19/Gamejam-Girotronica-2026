@@ -21,6 +21,7 @@ public class PauseMenu : MonoBehaviour
     [SerializeField] private Button optionsButton;
     [SerializeField] private Button mainMenuButton;
     [SerializeField] private Button backButton;         // inside the options panel
+    [SerializeField] private Button pauseButton;        // HUD button (top right) that opens the pause menu
 
     public bool IsPaused { get; private set; }
 
@@ -30,6 +31,7 @@ public class PauseMenu : MonoBehaviour
         if (optionsButton != null) optionsButton.onClick.AddListener(OpenOptions);
         if (mainMenuButton != null) mainMenuButton.onClick.AddListener(GoToMainMenu);
         if (backButton != null) backButton.onClick.AddListener(CloseOptions);
+        if (pauseButton != null) pauseButton.onClick.AddListener(TogglePause);
     }
 
     private void Start()
@@ -49,6 +51,8 @@ public class PauseMenu : MonoBehaviour
     }
 
     public void Resume() => SetPaused(false);
+    public void Pause() => SetPaused(true);
+    public void TogglePause() => SetPaused(!IsPaused);
 
     public void OpenOptions()
     {
@@ -65,7 +69,7 @@ public class PauseMenu : MonoBehaviour
     public void GoToMainMenu()
     {
         SetPaused(false);
-        SceneManager.LoadScene(mainMenuScene);
+        SceneTransition.Load(mainMenuScene);
     }
 
     private void SetPaused(bool paused)

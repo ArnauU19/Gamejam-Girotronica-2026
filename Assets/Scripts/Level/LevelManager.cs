@@ -14,13 +14,13 @@ public class LevelManager : MonoBehaviour
     public static LevelManager Instance { get; private set; }
 
     [Header("Countdown")]
-    [Min(0f)] public float countdownSeconds = 5f;
+    [Min(0f)] public float countdownSeconds = 3f;
     public Text countdownText;
-    public string goText = "GO!";
+    public string goText = "Som-hi!";
     public float goDisplayTime = 0.75f;
 
     [Header("Level end")]
-    public string completeText = "Level complete!";
+    public string completeText = "Nivell superat!";
     [Tooltip("Seconds between reaching the goal and loading the next scene (only if the character has no Animator; " +
              "otherwise the next scene loads when the Win animation finished its loops).")]
     public float nextLevelDelay = 1.5f;
@@ -53,7 +53,7 @@ public class LevelManager : MonoBehaviour
 
     IEnumerator Start()
     {
-        // Countdown: 5, 4, 3, 2, 1
+        // Countdown: 3, 2, 1
         float remaining = countdownSeconds;
         while (remaining > 0f)
         {
@@ -108,7 +108,7 @@ public class LevelManager : MonoBehaviour
         if (next < SceneManager.sceneCountInBuildSettings)
         {
             Debug.Log($"[LevelManager] Loading next scene (build index {next}).", this);
-            SceneManager.LoadScene(next);
+            SceneTransition.Load(next);
         }
         else
         {
