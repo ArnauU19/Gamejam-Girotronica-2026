@@ -26,6 +26,7 @@ public static class NotebookUIBuilder
     const string PausePrefabPath = "Assets/Prefabs/UI/PauseMenu.prefab";
     const string TransitionPrefabPath = "Assets/Resources/SceneTransition.prefab";
     const string MainMenuScene = "Assets/Scenes/MainMenu.unity";
+    const string MenuArtPath = "Assets/Art/menu_ui.png";
 
     static Font marker, hand;
 
@@ -95,78 +96,84 @@ public static class NotebookUIBuilder
         var canvas = NewCanvas("MainMenuCanvas", 0);
         var ct = canvas.transform;
 
-        // Desk + notebook
-        var desk = Img(ct, "Desk", LoadSprite(System.IO.File.Exists(DeskArt.WoodPath) ? DeskArt.WoodPath : "Assets/Art/Captura de pantalla 2026-11-21 173050.png"), new Color(0.82f, 0.78f, 0.74f));
+        PrepareSourceArt();
+
+        // ---- wood desk (full screen)
+        var desk = Img(ct, "Desk", LoadSprite(System.IO.File.Exists(DeskArt.WoodPath) ? DeskArt.WoodPath : "Assets/Art/Captura de pantalla 2026-11-21 173050.png"), new Color(0.9f, 0.88f, 0.85f));
         Stretch(desk.rectTransform);
         var fitter = desk.gameObject.AddComponent<AspectRatioFitter>();
         fitter.aspectMode = AspectRatioFitter.AspectMode.EnvelopeParent;
         fitter.aspectRatio = desk.sprite != null ? desk.sprite.rect.width / desk.sprite.rect.height : 16f / 9f;
 
-        var shadow = Img(ct, "NotebookShadow", NotebookUIArt.Get(NotebookUIArt.SoftShadow), new Color(0, 0, 0, 0.55f), Image.Type.Sliced);
-        Place(shadow.rectTransform, new Vector2(18, -34), new Vector2(1430, 920));
+        // ---- illustration: covers the right part of the screen, full height, torn edge on its left side
+        var artSprite = LoadSprite(MenuArtPath);
+        var art = Img(ct, "MenuArt", artSprite, Color.white);
+        var artRt = art.rectTransform;
+        artRt.anchorMin = new Vector2(1, 0);
+        artRt.anchorMax = new Vector2(1, 1);
+        artRt.pivot = new Vector2(1, 0.5f);
+        artRt.anchoredPosition = Vector2.zero;
+        artRt.sizeDelta = new Vector2(1000, 0);
+        var artFit = art.gameObject.AddComponent<AspectRatioFitter>();
+        artFit.aspectMode = AspectRatioFitter.AspectMode.HeightControlsWidth;
+        artFit.aspectRatio = artSprite != null ? artSprite.rect.width / artSprite.rect.height : 2000f / 2160f;
 
-        var book = Img(ct, "Notebook", LoadSprite("Assets/Art/llibreta.png"), Color.white);
-        book.preserveAspect = true;
-        Place(book.rectTransform, new Vector2(0, -8), new Vector2(1500, 976));
+        // ---- left column: title (always visible) + swappable content
+        var left = Rect(ct, "LeftColumn");
+        left.anchorMin = new Vector2(0, 0);
+        left.anchorMax = new Vector2(0, 1);
+        left.pivot = new Vector2(0, 0.5f);
+        left.anchoredPosition = Vector2.zero;
+        left.sizeDelta = new Vector2(920, 0);
 
-        // ---- left page: title, the comic panel and the girl escaping it
-        var left = Rect(book.transform, "LeftPage");
-        Anchor(left, new Vector2(0.085f, 0.07f), new Vector2(0.475f, 0.93f));
-
-        var title = Txt(left, "Title", GameTitle, marker, 96, NotebookUIArt.Ink, TextAnchor.MiddleCenter);
-        TopBand(title.rectTransform, -8, 110);
-        title.rectTransform.offsetMin = new Vector2(40, title.rectTransform.offsetMin.y);
-        title.rectTransform.offsetMax = new Vector2(-10, title.rectTransform.offsetMax.y);
+        var title = Txt(left, "Title", GameTitle, marker, 140, NotebookUIArt.Paper, TextAnchor.MiddleCenter);
+        TopBand(title.rectTransform, -90, 190);
+        title.rectTransform.offsetMin = new Vector2(60, title.rectTransform.offsetMin.y);
+        title.rectTransform.offsetMax = new Vector2(-40, title.rectTransform.offsetMax.y);
         title.horizontalOverflow = HorizontalWrapMode.Wrap;
         title.verticalOverflow = VerticalWrapMode.Truncate;
         title.resizeTextForBestFit = true;
-        title.resizeTextMinSize = 40;
-        title.resizeTextMaxSize = 84;
+        title.resizeTextMinSize = 50;
+        title.resizeTextMaxSize = 140;
+        var titleInk = title.gameObject.AddComponent<Outline>();
+        titleInk.effectColor = NotebookUIArt.Ink;
+        titleInk.effectDistance = new Vector2(6, -6);
+        var titleDrop = title.gameObject.AddComponent<Shadow>();
+        titleDrop.effectColor = new Color(0, 0, 0, 0.45f);
+        titleDrop.effectDistance = new Vector2(12, -14);
         title.transform.localRotation = Quaternion.Euler(0, 0, -3f);
-        title.gameObject.AddComponent<UIIdleSway>().bob = 3f;
-        var titleLine = Img(left, "TitleUnderline", NotebookUIArt.Get(NotebookUIArt.Underline), NotebookUIArt.Orange, Image.Type.Sliced);
+        title.gameObject.AddComponent<UIIdleSway>().bob = 4f;
+        var titleLine = Img(left, "TitleUnderline", NotebookUIArt.Get(NotebookUIArt.Underline), NotebookUIArt.Ink, Image.Type.Sliced);
         titleLine.rectTransform.anchorMin = titleLine.rectTransform.anchorMax = new Vector2(0.5f, 1f);
-        titleLine.rectTransform.sizeDelta = new Vector2(430, 34);
-        titleLine.rectTransform.anchoredPosition = new Vector2(25, -116);
+        titleLine.rectTransform.sizeDelta = new Vector2(600, 44);
+        titleLine.rectTransform.anchoredPosition = new Vector2(20, -300);
         titleLine.transform.localRotation = Quaternion.Euler(0, 0, -3f);
 
-        var panel = Rect(left, "ComicPanel");
-        Place(panel, new Vector2(10, 20), new Vector2(500, 281));
-        panel.localRotation = Quaternion.Euler(0, 0, 1.5f);
-        Halftone(panel, new Vector2(12, -12));
-        var art = Img(panel, "PanelArt", LoadSprite("Assets/Art/inici.png"), Color.white);
-        Stretch(art.rectTransform);
-        Tape(panel, new Vector2(-225, 135), 32f, 0.85f);
-        Tape(panel, new Vector2(228, 133), -28f, 0.85f);
-
-        var girl = Img(left, "Girl", LoadSprite("Assets/Art/Animacions/Run/run_nm1.png"), Color.white);
-        girl.preserveAspect = true;
-        girl.rectTransform.pivot = new Vector2(0.5f, 0.03f);
-        Place(girl.rectTransform, new Vector2(235, -42), new Vector2(360, 360));
-        var flip = girl.gameObject.AddComponent<UIFlipbook>();
-        flip.frames = Enumerable.Range(1, 4).Select(i => LoadSprite($"Assets/Art/Animacions/Run/run_nm{i}.png")).Where(s => s != null).ToArray();
-        flip.framesPerSecond = 9f;
-
-        var hint = Txt(left, "Hint", "Col·loca els regles per guiar-la\nde vinyeta en vinyeta.", hand, 38, NotebookUIArt.Pencil, TextAnchor.MiddleCenter);
-        BottomBand(hint.rectTransform, 30, 120);
-        hint.transform.localRotation = Quaternion.Euler(0, 0, -1.5f);
-
-        // ---- right page: menu (index) and options
-        var right = Rect(book.transform, "RightPage");
-        Anchor(right, new Vector2(0.525f, 0.07f), new Vector2(0.915f, 0.93f));
-
-        var mainPanel = Rect(right, "MainPanel");
+        // Main content: the buttons, straight on the wood
+        var mainPanel = Rect(left, "MainPanel");
         Stretch(mainPanel);
-        Heading(mainPanel, "Índex", 2f);
-        var play = MakeButton(mainPanel, "PlayButton", "Jugar", new Vector2(0, 120), new Vector2(440, 118), -2f, 64);
-        var options = MakeButton(mainPanel, "OptionsButton", "Opcions", new Vector2(0, -30), new Vector2(440, 118), 1.5f, 58);
-        var quit = MakeButton(mainPanel, "QuitButton", "Sortir", new Vector2(0, -180), new Vector2(440, 118), -1f, 58);
-        var footer = Txt(mainPanel, "Footer", "Game Jam Girotrònica 2026", hand, 30, NotebookUIArt.Pencil, TextAnchor.MiddleCenter);
-        BottomBand(footer.rectTransform, 30, 60);
+        var play = MakeButton(mainPanel, "PlayButton", "Jugar", new Vector2(0, 40), new Vector2(480, 124), -2f, 68);
+        var options = MakeButton(mainPanel, "OptionsButton", "Opcions", new Vector2(0, -120), new Vector2(480, 124), 1.5f, 62);
+        var quit = MakeButton(mainPanel, "QuitButton", "Sortir", new Vector2(0, -280), new Vector2(480, 124), -1f, 62);
+        var footer = Txt(left, "Footer", "Game Jam Girotrònica 2026", hand, 32, NotebookUIArt.Paper, TextAnchor.MiddleCenter);
+        BottomBand(footer.rectTransform, 30, 50);
+        var footerInk = footer.gameObject.AddComponent<Outline>();
+        footerInk.effectColor = new Color(NotebookUIArt.Ink.r, NotebookUIArt.Ink.g, NotebookUIArt.Ink.b, 0.8f);
+        footerInk.effectDistance = new Vector2(2, -2);
 
-        var optionsPanel = Rect(right, "OptionsPanel");
+        // Options content: same place, on a taped paper sheet so the labels read on the wood
+        var optionsPanel = Rect(left, "OptionsPanel");
         Stretch(optionsPanel);
-        var back = BuildOptions(optionsPanel, 600f, 150f);
+        var sheet = Img(optionsPanel, "Sheet", NotebookUIArt.Get(NotebookUIArt.PaperPage), Color.white, Image.Type.Sliced);
+        Place(sheet.rectTransform, new Vector2(0, -150), new Vector2(720, 680));
+        sheet.transform.localRotation = Quaternion.Euler(0, 0, -1.5f);
+        Tape(sheet.rectTransform, new Vector2(-280, 320), 35f);
+        Tape(sheet.rectTransform, new Vector2(280, 320), -35f);
+        var sheetContent = Rect(sheet.rectTransform, "Content");
+        Stretch(sheetContent);
+        sheetContent.offsetMin = new Vector2(60, 40);
+        sheetContent.offsetMax = new Vector2(-60, -30);
+        var back = BuildOptions(sheetContent, 560f, 112f);
         optionsPanel.gameObject.SetActive(false);
 
         // ---- wire MainMenu
@@ -423,12 +430,15 @@ public static class NotebookUIBuilder
 
     static void PrepareSourceArt()
     {
-        // The notebook fills most of the screen: import it at full resolution.
-        var imp = AssetImporter.GetAtPath("Assets/Art/llibreta.png") as TextureImporter;
-        if (imp != null && imp.maxTextureSize < 4096)
+        // Big menu images: import them at full resolution.
+        foreach (var path in new[] { "Assets/Art/llibreta.png", MenuArtPath })
         {
-            imp.maxTextureSize = 4096;
-            imp.SaveAndReimport();
+            var imp = AssetImporter.GetAtPath(path) as TextureImporter;
+            if (imp != null && imp.maxTextureSize < 4096)
+            {
+                imp.maxTextureSize = 4096;
+                imp.SaveAndReimport();
+            }
         }
     }
 
