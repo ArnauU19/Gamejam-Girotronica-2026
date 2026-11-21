@@ -31,12 +31,22 @@ public class AudioManager : MonoBehaviour
     [SerializeField] private SfxEntry[] sfxEntries;
     [SerializeField] private int sfxVoices = 8;     // sounds that can overlap
 
+    // Volume settings (0..1), saved in PlayerPrefs
+    public const string MasterVolumeKey = "volume_master";
+    public const string MusicVolumeKey = "volume_music";
+    public const string SfxVolumeKey = "volume_sfx";
+
+    public float MasterVolume { get; private set; } = 1f;
+    public float MusicVolume { get; private set; } = 1f;
+    public float SfxVolume { get; private set; } = 1f;
+
     private AudioLowPassFilter lowCutFilter;
     private AudioSource audioManagerSource;
 
     private AudioSource[] sfxPool;
     private int nextVoice;
     private Dictionary<Sfx, SfxEntry> sfxLookup;
+    private float musicBaseVolume = 1f;
 
     private void Awake()
     {
@@ -53,11 +63,13 @@ public class AudioManager : MonoBehaviour
 
         audioManagerSource = GetComponent<AudioSource>();
         lowCutFilter = GetComponent<AudioLowPassFilter>();
+        musicBaseVolume = audioManagerSource.volume;
 
         lowCutFilter.enabled = false;
 
         BuildSfxPool();
         BuildSfxLookup();
+        LoadVolumes();
 
         playLevelSong();
     }
@@ -102,9 +114,38 @@ public class AudioManager : MonoBehaviour
         nextVoice = (nextVoice + 1) % sfxPool.Length;
 
         voice.clip = clip;
-        voice.volume = entry.volume;
+        voice.volume = entry.volume * SfxVolume;
         voice.pitch = Random.Range(entry.pitchRange.x, entry.pitchRange.y);
         voice.Play();
+    }
+
+    // ---------- Volume ----------
+    public void SetMasterVolume(float value)
+    {
+        MasterVolume = Mathf.Clamp01(value);
+        AudioListener.volume = MasterVolume;
+        PlayerPrefs.SetFloat(MasterVolumeKey, MasterVolume);
+    }
+
+    public void SetMusicVolume(float value)
+    {
+        MusicVolume = Mathf.Clamp01(value);
+        if (audioManagerSource != null)
+            audioManagerSource.volume = musicBaseVolume * MusicVolume;
+        PlayerPrefs.SetFloat(MusicVolumeKey, MusicVolume);
+    }
+
+    public void SetSfxVolume(float value)
+    {
+        SfxVolume = Mathf.Clamp01(value);
+        PlayerPrefs.SetFloat(SfxVolumeKey, SfxVolume);
+    }
+
+    private void LoadVolumes()
+    {
+        SetMasterVolume(PlayerPrefs.GetFloat(MasterVolumeKey, 1f));
+        SetMusicVolume(PlayerPrefs.GetFloat(MusicVolumeKey, 1f));
+        SetSfxVolume(PlayerPrefs.GetFloat(SfxVolumeKey, 1f));
     }
 
     // The voices are children of the manager so the low pass filter
