@@ -41,6 +41,7 @@ public class DraggableObject : MonoBehaviour
     private readonly List<SpriteRenderer> spriteOutlines = new List<SpriteRenderer>();
     private bool outlineBuilt;
     private PieceLook look;   // sprite look (shadow, lift, hover ring); null for old 3D pieces
+    private readonly List<Collider2D> partColliders = new List<Collider2D>();   // extra solid colliders (eraser parts)
 
     // Pencil case: fullScale is the size the piece has in the scene; inside the case it is multiplied by the case's pieceScale
     private Vector3 fullScale;
@@ -56,6 +57,9 @@ public class DraggableObject : MonoBehaviour
     private void Awake()
     {
         col = GetComponent<Collider2D>();
+        // Other solid colliders of the piece (e.g. the eraser's rubber / metal parts), not the snap tips
+        foreach (Collider2D c in GetComponentsInChildren<Collider2D>(true))
+            if (c != col && !c.isTrigger && c.GetComponent<SnapTip>() == null) partColliders.Add(c);
         look = GetComponent<PieceLook>();
         shakeSeed = Random.value * 100f;
     }
@@ -368,6 +372,8 @@ public class DraggableObject : MonoBehaviour
     // The collider is only on when the object is neither grabbed nor rotating
     private void RefreshCollider()
     {
-        col.enabled = !isGrabbed && rotateRoutine == null;
+        bool on = !isGrabbed && rotateRoutine == null;
+        col.enabled = on;
+        foreach (Collider2D c in partColliders) if (c != null) c.enabled = on;
     }
 }

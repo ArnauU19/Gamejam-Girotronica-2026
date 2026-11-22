@@ -22,6 +22,9 @@ public class EraserScript : MonoBehaviour
     public float duration = 1f;
     [Tooltip("Seconds during which a new hit does not restart the bounce.")]
     public float cooldown = 0.2f;
+    [Tooltip("Bounce on any contact with the character. Off: the SurfaceWalker calls Bounce() only when " +
+             "the character bounces on the pink rubber (touching the metal end kills it instead).")]
+    public bool bounceOnContact = false;
 
     Vector3 baseScale;
     Coroutine routine;
@@ -36,13 +39,13 @@ public class EraserScript : MonoBehaviour
     // The character's colliders are triggers, so this is the usual call.
     void OnTriggerEnter2D(Collider2D other)
     {
-        if (other.GetComponentInParent<SurfaceWalker>() != null) Bounce();
+        if (bounceOnContact && other.GetComponentInParent<SurfaceWalker>() != null) Bounce();
     }
 
     // In case the eraser is hit by a solid collider of the character.
     void OnCollisionEnter2D(Collision2D collision)
     {
-        if (collision.collider.GetComponentInParent<SurfaceWalker>() != null) Bounce();
+        if (bounceOnContact && collision.collider.GetComponentInParent<SurfaceWalker>() != null) Bounce();
     }
 
     /// <summary>Starts (or restarts) the bouncy squash & stretch.</summary>
