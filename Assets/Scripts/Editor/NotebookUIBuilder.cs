@@ -193,6 +193,53 @@ public static class NotebookUIBuilder
         Selection.activeGameObject = canvas.gameObject;
     }
 
+    // ================================================================== end credits
+
+    [MenuItem("Girotronica/UI/Build End Credits UI (Open Scene)")]
+    public static void BuildEndCreditsMenu()
+    {
+        BuildEndCredits();
+        EditorSceneManager.MarkSceneDirty(SceneManager.GetActiveScene());
+    }
+
+    /// <summary>
+    /// "Gràcies per jugar" on the left of the screen + a button back to the main menu.
+    /// Only UI: the wood desk and the girl are scene objects of EndCredits.
+    /// </summary>
+    public static void BuildEndCredits()
+    {
+        LoadFonts();
+        foreach (var root in SceneManager.GetActiveScene().GetRootGameObjects())
+            if (root.name == "EndCreditsCanvas") Object.DestroyImmediate(root);
+        EnsureEventSystem();
+
+        var canvas = NewCanvas("EndCreditsCanvas", 0);
+        var left = Rect(canvas.transform, "LeftColumn");
+        left.anchorMin = new Vector2(0, 0);
+        left.anchorMax = new Vector2(0, 1);
+        left.pivot = new Vector2(0, 0.5f);
+        left.anchoredPosition = Vector2.zero;
+        left.sizeDelta = new Vector2(1000, 0);
+
+        var thanks = Txt(left, "Thanks", "Gràcies\nper jugar", marker, 160, NotebookUIArt.Paper, TextAnchor.MiddleCenter);
+        Place(thanks.rectTransform, new Vector2(0, 130), new Vector2(900, 440));
+        thanks.lineSpacing = 0.9f;
+        var ink = thanks.gameObject.AddComponent<Outline>();
+        ink.effectColor = NotebookUIArt.Ink;
+        ink.effectDistance = new Vector2(6, -6);
+        var drop = thanks.gameObject.AddComponent<Shadow>();
+        drop.effectColor = new Color(0, 0, 0, 0.45f);
+        drop.effectDistance = new Vector2(12, -14);
+        thanks.transform.localRotation = Quaternion.Euler(0, 0, -3f);
+        thanks.gameObject.AddComponent<UIIdleSway>().bob = 5f;
+
+        var button = MakeButton(left, "MainMenuButton", "Tornar al menú", new Vector2(0, -300), new Vector2(520, 128), -1.5f, 62);
+
+        var end = canvas.gameObject.AddComponent<EndCreditsMenu>();
+        end.menuButton = button;
+        Selection.activeGameObject = canvas.gameObject;
+    }
+
     /// <summary>Volume rows + back button. Adds OptionsMenu to the panel. Returns the back button.</summary>
     static Button BuildOptions(RectTransform panel, float width, float rowStep)
     {
