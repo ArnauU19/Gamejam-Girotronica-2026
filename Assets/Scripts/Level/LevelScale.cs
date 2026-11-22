@@ -6,12 +6,10 @@ using UnityEditor.SceneManagement;
 
 /// <summary>
 /// Size of the level (on LevelBase). A level with more panels is drawn smaller: set "Scale" and
-/// everything of the level gets that same scale, so panels, character and pieces keep their proportion:
+/// the panels and the character get that same scale, so they keep their proportion:
 ///  - every panel (objects with a Panel component) -> scale
 ///  - the character -> characterScale * scale (its walking distances, speed and gravity too, in play)
-///  - the pieces: rulers get RulerBuilder.pieceScale (smaller centimetres), the rest their transform scale.
-/// The camera, desk, pencil case, kill zones and UI never change.
-/// Edit mode only for the transforms: in play the pieces are scaled by the pencil case, not here.
+/// The pieces (grabbable objects), camera, desk, pencil case, kill zones and UI are never changed.
 /// </summary>
 [ExecuteAlways]
 [DefaultExecutionOrder(-500)]   // before SurfaceWalker.Awake
@@ -56,24 +54,6 @@ public class LevelScale : MonoBehaviour
             if (p.gameObject.scene == gameObject.scene) changed |= SetScale(p.transform, scale);
 
         if (character != null) changed |= SetScale(character.transform, characterScale * scale);
-
-        foreach (var d in FindObjectsByType<DraggableObject>(FindObjectsInactive.Include))
-        {
-            if (d.gameObject.scene != gameObject.scene) continue;
-            var ruler = d.GetComponent<RulerBuilder>();
-            if (ruler != null)
-            {
-                if (!Mathf.Approximately(ruler.pieceScale, scale))
-                {
-                    Undo.RecordObject(ruler, "Level scale");
-                    ruler.pieceScale = scale;
-                    ruler.Rebuild();
-                    PrefabUtility.RecordPrefabInstancePropertyModifications(ruler);
-                    changed = true;
-                }
-            }
-            else changed |= SetScale(d.transform, scale);
-        }
 
         if (changed) EditorSceneManager.MarkSceneDirty(gameObject.scene);
     }
