@@ -133,6 +133,7 @@ public class SurfaceWalker : MonoBehaviour
     Collider2D flipLatch; // ruler that already flipped the direction (flip only once per ruler)
     bool sliding;         // on that steep ruler after the flip
     Collider2D caughtByFall; // ruler that caught the last fall (only that one can be a slide)
+    float lastEraserBounceTime = -10f;
 
     Vector2 spawnPosition;
     float spawnRotation;
@@ -154,6 +155,20 @@ public class SurfaceWalker : MonoBehaviour
         if (GetComponent<CharacterAnimator>() == null && GetComponentInChildren<Animator>(true) != null)
             gameObject.AddComponent<CharacterAnimator>();
         contactFilter = new ContactFilter2D { useTriggers = false };
+
+        // Levels built with the panel prefabs: the start panel brings a PlayerSpawn -> start there.
+        if (spawnPoint == null)
+        {
+            var spawn = FindAnyObjectByType<PlayerSpawn>();
+            if (spawn != null) spawnPoint = spawn.transform;
+        }
+        if (spawnPoint != null)
+        {
+            Vector3 p = spawnPoint.position;
+            transform.SetPositionAndRotation(new Vector3(p.x, p.y, transform.position.z), Quaternion.Euler(0f, 0f, spawnPoint.eulerAngles.z));
+            rb.position = p;
+            rb.rotation = spawnPoint.eulerAngles.z;
+        }
         spawnPosition = rb.position;
         spawnRotation = rb.rotation;
         startFacing = facing < 0 ? -1 : 1;
@@ -238,6 +253,9 @@ public class SurfaceWalker : MonoBehaviour
         Vector2 pos = rb.position;
         float step = speed * dt;
 
+        // 0) Eraser in front (any height, from the feet to the head): bounce on the rubber, die on the metal.
+        if (CheckEraserAhead(forward, up, bodyHalfWidth + step + 0.05f)) return;
+
         // 1) Wall in front (sharp concave corner): climb onto it. Rulers are never walls to climb, and
         //    erasers neither (the front sensor makes the character turn around when it touches them).
         if (Cast(pos, forward, bodyHalfWidth + step + 0.05f, Filter.FloorOnly, out var wall) &&
@@ -284,6 +302,7 @@ public class SurfaceWalker : MonoBehaviour
     {
         Vector2 up = -gravityDir;
         Vector2 pos = rb.position;
+        if (CheckEraserAhead(ExitDirection, up, bodyHalfWidth + speed * dt + 0.05f)) return;
         Vector2 target = pos + ExitDirection * (speed * dt);
 
         float reach = footOffset + Mathf.Max(rulerClearance, groundSnapDistance);
@@ -407,6 +426,15 @@ public class SurfaceWalker : MonoBehaviour
 
         Vector2 delta = velocity * dt;
         Vector2 pos = rb.position;
+
+        // Erasers while falling: sideways like when walking; landing on top of one is a crash.
+        if (sideways.sqrMagnitude > 0.0001f &&
+            CheckEraserAhead(sideways.normalized, -gravityDir, bodyHalfWidth + sideways.magnitude * dt + 0.05f)) return;
+        if (EraserBelow(pos, footOffset + Mathf.Max(0f, Vector2.Dot(delta, gravityDir)), out var below))
+        {
+            Die($"fell onto eraser '{below.name}'", dizzy: true);
+            return;
+        }
 
         // Move sideways first, then look along gravity.
         float fallDist = Mathf.Max(0f, Vector2.Dot(delta, gravityDir));
@@ -589,6 +617,58 @@ public class SurfaceWalker : MonoBehaviour
 
     bool IsKillZone(Collider2D c) => killZoneTagValid && c != null && c.CompareTag(killZoneTag);
 
+    static EraserPart EraserPartOf(Collider2D c) => c != null ? c.GetComponent<EraserPart>() : null;
+
+    /// <summary>
+    /// Looks for an eraser in front with several rays, from just above the feet to the head, so a small
+    /// eraser stuck to the floor is found too. Metal part (Deadly) -> dies (Dizzy). Only the pink rubber
+    /// (Bounce) -> turns around and the eraser wobbles. Returns true if something happened.
+    /// </summary>
+    bool CheckEraserAhead(Vector2 dir, Vector2 up, float reach)
+    {
+        const int rays = 5;
+        EraserPart bounce = null;
+        contactFilter.SetLayerMask(groundMask);
+        for (int i = 0; i < rays; i++)
+        {
+            float h = Mathf.Lerp(-footOffset + 0.05f, footOffset * 0.9f, i / (rays - 1f));
+            int count = Physics2D.Raycast(rb.position + up * h, dir, contactFilter, hits, reach);
+            for (int k = 0; k < count; k++)
+            {
+                if (hits[k].rigidbody == rb) continue;
+                EraserPart part = EraserPartOf(hits[k].collider);
+                if (part == null) continue;
+                if (part.kind == EraserPart.Kind.Deadly)
+                {
+                    Die($"crashed into the metal end of eraser '{part.name}'", dizzy: true);
+                    return true;
+                }
+                bounce = part;
+            }
+        }
+
+        // Just after a bounce the character can still be touching the rubber: do not flip back.
+        if (bounce == null || Time.time - lastEraserBounceTime < 0.3f) return false;
+        lastEraserBounceTime = Time.time;
+        FlipDirection($"bounced on eraser '{bounce.name}'");
+        if (bounce.Eraser != null) bounce.Eraser.Bounce();
+        return true;
+    }
+
+    bool EraserBelow(Vector2 pos, float distance, out EraserPart part)
+    {
+        part = null;
+        contactFilter.SetLayerMask(groundMask);
+        int count = Physics2D.Raycast(pos, gravityDir, contactFilter, hits, distance);
+        for (int k = 0; k < count; k++)
+        {
+            if (hits[k].rigidbody == rb) continue;
+            part = EraserPartOf(hits[k].collider);
+            if (part != null) return true;
+        }
+        return false;
+    }
+
     /// <summary>A ruler is anything tagged rulerTag or carrying the Ruler component (from the drag system).</summary>
     bool IsRuler(Collider2D c)
     {
@@ -621,6 +701,7 @@ public class SurfaceWalker : MonoBehaviour
             var h = hits[i];
             if (h.rigidbody == rb) continue;
             if (IsKillZone(h.collider)) continue; // never stand on a kill zone: touching it kills
+            if (EraserPartOf(h.collider) != null) continue; // erasers are obstacles, never floors (CheckEraserAhead)
             bool ruler = IsRuler(h.collider);
             if (filter == Filter.FloorOnly && ruler) continue;
             if (filter == Filter.RulerOnly && !ruler) continue;

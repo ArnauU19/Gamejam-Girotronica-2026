@@ -24,6 +24,8 @@ public class RulerBuilder : MonoBehaviour
     [Min(0.2f)] public float width = 1f;
     [Tooltip("Plastic before the 0 mark and after the last mark (world units).")]
     [Min(0f)] public float endMargin = 0.4f;
+    [Tooltip("Size of the whole ruler, marks included (set by LevelScale in levels drawn smaller). 1 = real size.")]
+    [Min(0.05f)] public float pieceScale = 1f;
 
     [Header("Art (Assets/Art/Pieces)")]
     [SerializeField] private Sprite body;
@@ -43,7 +45,8 @@ public class RulerBuilder : MonoBehaviour
     [SerializeField] private BoxCollider2D box;
     [SerializeField] private Transform tipA, tipB, tipC, tipD;   // A,B top; C,D bottom; A,C left
 
-    public float LengthUnits => lengthCm * unitsPerCm;
+    /// <summary>Length in world units, with the level scale applied.</summary>
+    public float LengthUnits => lengthCm * unitsPerCm * pieceScale;
 
     private GameObject generated;
     private bool dirty;
@@ -89,15 +92,17 @@ public class RulerBuilder : MonoBehaviour
     public void Rebuild()
     {
         Clear();
-        float L = LengthUnits;
+        // Everything is built at real size (L, W) and the drawn parts are then scaled by pieceScale
+        float L = lengthCm * unitsPerCm;
         float W = width;
+        float k = pieceScale;
 
         // ---- logic: collider + tips at the corners
-        if (box != null) { box.size = new Vector2(W, L); box.offset = Vector2.zero; }
-        SetTip(tipA, -W / 2f, L / 2f);
-        SetTip(tipB, W / 2f, L / 2f);
-        SetTip(tipC, -W / 2f, -L / 2f);
-        SetTip(tipD, W / 2f, -L / 2f);
+        if (box != null) { box.size = new Vector2(W * k, L * k); box.offset = Vector2.zero; }
+        SetTip(tipA, -W * k / 2f, L * k / 2f);
+        SetTip(tipB, W * k / 2f, L * k / 2f);
+        SetTip(tipC, -W * k / 2f, -L * k / 2f);
+        SetTip(tipD, W * k / 2f, -L * k / 2f);
 
         if (body == null) return;
 
@@ -106,6 +111,7 @@ public class RulerBuilder : MonoBehaviour
         generated.hideFlags = HideFlags.HideAndDontSave;
         generated.transform.SetParent(transform, false);
         generated.layer = gameObject.layer;
+        generated.transform.localScale = new Vector3(k, k, 1f);
 
         Transform art = generated.transform;
         var visualGo = NewChild("Visual", art);

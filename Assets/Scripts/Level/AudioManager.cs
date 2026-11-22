@@ -58,6 +58,7 @@ public class AudioManager : MonoBehaviour
         if(Instance == null)
         {
             Instance = this;
+            if (transform.parent != null) transform.SetParent(null);   // DontDestroyOnLoad needs a root object (e.g. inside LevelBase)
             DontDestroyOnLoad(gameObject);
         }
         else
