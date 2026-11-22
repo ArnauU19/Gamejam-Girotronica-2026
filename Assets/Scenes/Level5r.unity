@@ -189,7 +189,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 1
     m_VerticalOverflow: 1
     m_LineSpacing: 1
-  m_Text: Nivell 3
+  m_Text: Nivell 5
 --- !u!222 &35212379
 CanvasRenderer:
   m_ObjectHideFlags: 0

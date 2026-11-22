@@ -173,7 +173,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7387358537167003630, guid: 9b0d765cde9fbe14485009d8ef2bd3a8, type: 3}
       propertyPath: m_Text
-      value: Nivell 2
+      value: Nivell 4
       objectReference: {fileID: 0}
     - target: {fileID: 7455395336534093774, guid: 9b0d765cde9fbe14485009d8ef2bd3a8, type: 3}
       propertyPath: m_LocalScale.x
