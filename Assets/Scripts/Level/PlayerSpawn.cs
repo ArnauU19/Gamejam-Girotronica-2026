@@ -6,10 +6,13 @@ using UnityEngine;
 /// </summary>
 public class PlayerSpawn : MonoBehaviour
 {
+    [Tooltip("Direction the character starts walking: 1 = right, -1 = left (the mirrored start panel uses -1).")]
+    public int facing = 1;
+
     void OnDrawGizmos()
     {
         Gizmos.color = new Color(0.2f, 1f, 0.4f, 0.9f);
         Gizmos.DrawWireSphere(transform.position, 0.35f);
-        Gizmos.DrawLine(transform.position, transform.position + transform.right * 0.8f);
+        Gizmos.DrawLine(transform.position, transform.position + transform.right * (facing < 0 ? -0.8f : 0.8f));
     }
 }

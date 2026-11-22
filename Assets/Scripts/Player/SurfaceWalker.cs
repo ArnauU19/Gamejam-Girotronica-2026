@@ -168,6 +168,9 @@ public class SurfaceWalker : MonoBehaviour
             transform.SetPositionAndRotation(new Vector3(p.x, p.y, transform.position.z), Quaternion.Euler(0f, 0f, spawnPoint.eulerAngles.z));
             rb.position = p;
             rb.rotation = spawnPoint.eulerAngles.z;
+            // Mirrored start panels (Panel_*_Flip) make the character start walking to the left
+            var ps = spawnPoint.GetComponent<PlayerSpawn>();
+            if (ps != null) SetFacing(ps.facing, "start direction of the PlayerSpawn");
         }
         spawnPosition = rb.position;
         spawnRotation = rb.rotation;
