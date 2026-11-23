@@ -1,0 +1,1696 @@
+fileFormatVersion: 2
+guid: dd5aa7200546bec4d9e96b3c47579fa9
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: 8859225441076862958
+    second: eraser_0
+  - first:
+      213: 6998134889622090555
+    second: eraser_1
+  - first:
+      213: -1186059875460948869
+    second: eraser_2
+  - first:
+      213: 2521339149044515005
+    second: eraser_3
+  - first:
+      213: 6089981956706552939
+    second: eraser_4
+  - first:
+      213: 2877075260411616311
+    second: eraser_5
+  - first:
+      213: 8800844823938088747
+    second: eraser_6
+  - first:
+      213: 5959951059260910797
+    second: eraser_7
+  - first:
+      213: 3706053984272315884
+    second: eraser_8
+  - first:
+      213: -3573185903751511296
+    second: eraser_9
+  - first:
+      213: -856282671756824497
+    second: eraser_10
+  - first:
+      213: 1839874458108279836
+    second: eraser_11
+  - first:
+      213: 2355349036385992062
+    second: eraser_12
+  - first:
+      213: -5518007468559953903
+    second: eraser_13
+  - first:
+      213: 6242708853904470682
+    second: eraser_14
+  - first:
+      213: 1347127434052458303
+    second: eraser_15
+  - first:
+      213: -1181438232812861430
+    second: eraser_16
+  - first:
+      213: 8004137481887134539
+    second: eraser_17
+  - first:
+      213: 5379796998666612015
+    second: eraser_18
+  - first:
+      213: -3484682356281719629
+    second: eraser_19
+  - first:
+      213: 4221220358403500793
+    second: eraser_20
+  - first:
+      213: 1562402220585776793
+    second: eraser_21
+  - first:
+      213: 3262878999252288939
+    second: eraser_22
+  - first:
+      213: -9041885444967732028
+    second: eraser_23
+  - first:
+      213: -7071737444671102715
+    second: eraser_24
+  - first:
+      213: 2738330076344004611
+    second: eraser_25
+  - first:
+      213: -762946371913360323
+    second: eraser_26
+  - first:
+      213: -6300233456509416363
+    second: eraser_27
+  - first:
+      213: -2281738975112820562
+    second: eraser_28
+  - first:
+      213: 5006917315606521530
+    second: eraser_29
+  - first:
+      213: 5509889205651055710
+    second: eraser_30
+  - first:
+      213: -3295073028736975115
+    second: eraser_31
+  - first:
+      213: 1979216373098335642
+    second: eraser_32
+  - first:
+      213: -7866178680758351211
+    second: eraser_33
+  - first:
+      213: 1020088766573774762
+    second: eraser_34
+  - first:
+      213: -8015820576906807994
+    second: eraser_35
+  - first:
+      213: -3648493116809438236
+    second: eraser_36
+  - first:
+      213: -964958778275454775
+    second: eraser_37
+  - first:
+      213: 1701506468332631534
+    second: eraser_38
+  - first:
+      213: -2267285364219310042
+    second: eraser_39
+  - first:
+      213: -1781892436892695532
+    second: eraser_40
+  - first:
+      213: 4467899707134590103
+    second: eraser_41
+  - first:
+      213: 9059408376411697124
+    second: eraser_42
+  - first:
+      213: 9134859685362155979
+    second: eraser_43
+  - first:
+      213: -677729697237937048
+    second: eraser_44
+  - first:
+      213: -2811264125939420228
+    second: eraser_45
+  - first:
+      213: 8191910741029490318
+    second: eraser_46
+  - first:
+      213: -2219976275306873316
+    second: eraser_47
+  - first:
+      213: 2466483169469310325
+    second: eraser_48
+  - first:
+      213: -5637182661865663531
+    second: eraser_49
+  - first:
+      213: 8692367228708660244
+    second: eraser_50
+  - first:
+      213: 941887009696510174
+    second: eraser_51
+  - first:
+      213: 5553402088353413768
+    second: eraser_52
+  - first:
+      213: -3482790792855925402
+    second: eraser_53
+  - first:
+      213: -4115040722323269314
+    second: eraser_54
+  - first:
+      213: -6960541512311993202
+    second: eraser_55
+  - first:
+      213: -2534160510580701461
+    second: eraser_56
+  - first:
+      213: 972384483224409680
+    second: eraser_57
+  - first:
+      213: 4994203470249309741
+    second: eraser_58
+  - first:
+      213: -5227102583338018277
+    second: eraser_59
+  - first:
+      213: 6009776715274766965
+    second: eraser_60
+  - first:
+      213: 1026410676534519915
+    second: eraser_61
+  - first:
+      213: 6280919067359535535
+    second: eraser_62
+  - first:
+      213: 1174668837172149990
+    second: eraser_63
+  - first:
+      213: -1098176574612485562
+    second: eraser_64
+  - first:
+      213: -5940086161351673141
+    second: eraser_65
+  - first:
+      213: -3204010820585153988
+    second: eraser_66
+  - first:
+      213: 8370099506699309015
+    second: eraser_67
+  - first:
+      213: -5810298370270645589
+    second: eraser_68
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 1
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 100
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationMethod: 0
+  spriteTessellationDetail: -1
+  spriteGeometrySubdivision: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 4096
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 60
+    crunchedCompression: 1
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: WebGL
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: eraser_000
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 1060
+        width: 384
+        height: 212
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: c7f10605aa5a82941ab7506c0626b505
+      internalID: -1248910143
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: eraser_001
+      rect:
+        serializedVersion: 2
+        x: 384
+        y: 1060
+        width: 384
+        height: 212
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 6b1eca0fba124d349a7bd5bd5f5e52c1
+      internalID: 791041070
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: eraser_002
+      rect:
+        serializedVersion: 2
+        x: 768
+        y: 1060
+        width: 384
+        height: 212
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 0d67a5f9389b90a4ebe495c91fd8d2ee
+      internalID: -1695142247
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: eraser_003
+      rect:
+        serializedVersion: 2
+        x: 1152
+        y: 1060
+        width: 384
+        height: 212
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: d8a70e781fd737144bf57881e85e24a3
+      internalID: -492689998
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: eraser_004
+      rect:
+        serializedVersion: 2
+        x: 1536
+        y: 1060
+        width: 384
+        height: 212
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 0220f45cbd95f6e4aaff09b6e5fd6c26
+      internalID: -2016415851
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: eraser_005
+      rect:
+        serializedVersion: 2
+        x: 1920
+        y: 1060
+        width: 384
+        height: 212
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 52bdb08dd631f6348b621f2a0e98c4b5
+      internalID: -1066560030
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: eraser_006
+      rect:
+        serializedVersion: 2
+        x: 2304
+        y: 1060
+        width: 384
+        height: 212
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 96edc3533d2804940953551865d0c7d4
+      internalID: 13527254
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: eraser_007
+      rect:
+        serializedVersion: 2
+        x: 2688
+        y: 1060
+        width: 384
+        height: 212
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 0265aea0d78c50a47a8b70bf0db13575
+      internalID: -537055401
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: eraser_008
+      rect:
+        serializedVersion: 2
+        x: 3072
+        y: 1060
+        width: 384
+        height: 212
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: e441bb50de7a07144b5523ac9c90b72a
+      internalID: -1826686957
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: eraser_009
+      rect:
+        serializedVersion: 2
+        x: 3456
+        y: 1060
+        width: 384
+        height: 212
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: ff12fd6cbe622c34bbe6ded053e4b04a
+      internalID: 1038114973
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: eraser_010
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 848
+        width: 384
+        height: 212
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: b2ea40c8c10700e4a9f068e362a8608e
+      internalID: 333935428
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: eraser_011
+      rect:
+        serializedVersion: 2
+        x: 384
+        y: 848
+        width: 384
+        height: 212
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 503aa2d62973f9747b21f6edaf491809
+      internalID: 1430406858
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: eraser_012
+      rect:
+        serializedVersion: 2
+        x: 768
+        y: 848
+        width: 384
+        height: 212
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 87430a381e5551e4a8091bbd6337712a
+      internalID: 1014905573
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: eraser_013
+      rect:
+        serializedVersion: 2
+        x: 1152
+        y: 848
+        width: 384
+        height: 212
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: aafcade6b2b12084bb717d2b8a588c0c
+      internalID: -857362574
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: eraser_014
+      rect:
+        serializedVersion: 2
+        x: 1536
+        y: 848
+        width: 384
+        height: 212
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: fdf2bea8d1b56d74f8e0a820c7a878bd
+      internalID: -808515400
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: eraser_015
+      rect:
+        serializedVersion: 2
+        x: 1920
+        y: 848
+        width: 384
+        height: 212
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 29b996819607cc54caba98819c037127
+      internalID: 866920203
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: eraser_016
+      rect:
+        serializedVersion: 2
+        x: 2304
+        y: 848
+        width: 384
+        height: 212
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: ebe0a9cd60cff824aae268f2ec42c0d1
+      internalID: -1963065770
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: eraser_017
+      rect:
+        serializedVersion: 2
+        x: 2688
+        y: 848
+        width: 384
+        height: 212
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: fba2a1961e1f7c54ba4c688d1ef14b4d
+      internalID: -2025842693
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: eraser_018
+      rect:
+        serializedVersion: 2
+        x: 3072
+        y: 848
+        width: 384
+        height: 212
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 462d9913221198849b2ec02cb20918c7
+      internalID: -644892403
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: eraser_019
+      rect:
+        serializedVersion: 2
+        x: 3456
+        y: 848
+        width: 384
+        height: 212
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 99e42c072b209314eb5ff639edf4376e
+      internalID: 1956286316
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: eraser_020
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 636
+        width: 384
+        height: 212
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: aab40db05f4fbe5488c89186beec72b1
+      internalID: 1705758214
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: eraser_021
+      rect:
+        serializedVersion: 2
+        x: 384
+        y: 636
+        width: 384
+        height: 212
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 99e140bda82e3f84895f162079ac4ba9
+      internalID: 802012603
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: eraser_022
+      rect:
+        serializedVersion: 2
+        x: 768
+        y: 636
+        width: 384
+        height: 212
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 9834966b604bbaf4cbdaea76e08bfcd2
+      internalID: 1555945925
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: eraser_023
+      rect:
+        serializedVersion: 2
+        x: 1152
+        y: 636
+        width: 384
+        height: 212
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: b1416066a0adb9041973cb88e1e7c105
+      internalID: -86394517
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: eraser_024
+      rect:
+        serializedVersion: 2
+        x: 1536
+        y: 636
+        width: 384
+        height: 212
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 922398bc0697440428818ec2196e3cb3
+      internalID: -723994530
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: eraser_025
+      rect:
+        serializedVersion: 2
+        x: 1920
+        y: 636
+        width: 384
+        height: 212
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: a440e102c8c741544ac8fa11c2329834
+      internalID: -1586304770
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: eraser_026
+      rect:
+        serializedVersion: 2
+        x: 2304
+        y: 636
+        width: 384
+        height: 212
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 8e6e32875e305d3489063bb961c1c2b8
+      internalID: -1844504126
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: eraser_027
+      rect:
+        serializedVersion: 2
+        x: 2688
+        y: 636
+        width: 384
+        height: 212
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: eef3d230a5c6ff8429c04148d9101b79
+      internalID: -2142169139
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: eraser_028
+      rect:
+        serializedVersion: 2
+        x: 3072
+        y: 636
+        width: 384
+        height: 212
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: fa40e37ce3ab0a848b3b74bffeef6521
+      internalID: -311217332
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: eraser_029
+      rect:
+        serializedVersion: 2
+        x: 3456
+        y: 636
+        width: 384
+        height: 212
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 36b886047703e764c94d6a1140a1897b
+      internalID: 1875970210
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: eraser_030
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 424
+        width: 384
+        height: 212
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 86ee92ac98a30a74facf8f0e5a1eb23f
+      internalID: 265586154
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: eraser_031
+      rect:
+        serializedVersion: 2
+        x: 384
+        y: 424
+        width: 384
+        height: 212
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 06a7cbb1fd5bda547b76077e01d2f70a
+      internalID: 1116307853
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: eraser_032
+      rect:
+        serializedVersion: 2
+        x: 768
+        y: 424
+        width: 384
+        height: 212
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: d9912af4376a5444ab158b0381b8e79e
+      internalID: -849569302
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: eraser_033
+      rect:
+        serializedVersion: 2
+        x: 1152
+        y: 424
+        width: 384
+        height: 212
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 709a3f62106f5804294bd53af60d62b4
+      internalID: -1515988490
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: eraser_034
+      rect:
+        serializedVersion: 2
+        x: 1536
+        y: 424
+        width: 384
+        height: 212
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 3637f729cfb4dbb49a01c04aed45455b
+      internalID: -402292784
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: eraser_035
+      rect:
+        serializedVersion: 2
+        x: 1920
+        y: 424
+        width: 384
+        height: 212
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: de008a49ab36203449799b7fb73f70e7
+      internalID: -625406628
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: eraser_036
+      rect:
+        serializedVersion: 2
+        x: 2304
+        y: 424
+        width: 384
+        height: 212
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 9e6d38d6219af0b4fb2b3c7be1798eea
+      internalID: -1658133822
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: eraser_037
+      rect:
+        serializedVersion: 2
+        x: 2688
+        y: 424
+        width: 384
+        height: 212
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: ac836d7fb0aba09409a3b22631ffd3a2
+      internalID: 1873545121
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: eraser_038
+      rect:
+        serializedVersion: 2
+        x: 3072
+        y: 424
+        width: 384
+        height: 212
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 69e5e12a63e6a354dbbb194e87087873
+      internalID: 872071797
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: eraser_039
+      rect:
+        serializedVersion: 2
+        x: 3456
+        y: 424
+        width: 384
+        height: 212
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 2678a6017fca41b4cbc5decdc068d015
+      internalID: 103175170
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: eraser_040
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 212
+        width: 384
+        height: 212
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 0472f8ec780ccb44b9d0664c38f45430
+      internalID: 416124033
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: eraser_041
+      rect:
+        serializedVersion: 2
+        x: 384
+        y: 212
+        width: 384
+        height: 212
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 374115a55fd0b0b49987c2f8f5689ac7
+      internalID: -896987977
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: eraser_042
+      rect:
+        serializedVersion: 2
+        x: 768
+        y: 212
+        width: 384
+        height: 212
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: face0d7e7144b334ab8b659e1d320af6
+      internalID: -66451893
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: eraser_043
+      rect:
+        serializedVersion: 2
+        x: 1152
+        y: 212
+        width: 384
+        height: 212
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: a1b6d2084c1063b4cbc296d258a3507b
+      internalID: 449670100
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: eraser_044
+      rect:
+        serializedVersion: 2
+        x: 1536
+        y: 212
+        width: 384
+        height: 212
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: a6547a915de1e684c961a931a6182163
+      internalID: 1381441625
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: eraser_045
+      rect:
+        serializedVersion: 2
+        x: 1920
+        y: 212
+        width: 384
+        height: 212
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: c9f18db0c6140ab4db7b686972638507
+      internalID: -1973733449
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: eraser_046
+      rect:
+        serializedVersion: 2
+        x: 2304
+        y: 212
+        width: 384
+        height: 212
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: a4213960f03a9414b990b339e70323bb
+      internalID: -1876849123
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: eraser_047
+      rect:
+        serializedVersion: 2
+        x: 2688
+        y: 212
+        width: 384
+        height: 212
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 6185ee6d387ba854a88163dcbd6160b2
+      internalID: -1802426262
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: eraser_048
+      rect:
+        serializedVersion: 2
+        x: 3072
+        y: 212
+        width: 384
+        height: 212
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 8d4dc216122d9e7428f3856e0c79fb64
+      internalID: 500680752
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: eraser_049
+      rect:
+        serializedVersion: 2
+        x: 3456
+        y: 212
+        width: 384
+        height: 212
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: a99ad93951d918445be8108f0c10dd87
+      internalID: 258904625
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: eraser_050
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 384
+        height: 212
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 4f8089845dfb7474b8762bc51f81dbe1
+      internalID: 560946343
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: eraser_051
+      rect:
+        serializedVersion: 2
+        x: 384
+        y: 0
+        width: 384
+        height: 212
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 74c4cade06a029f44988fedd30bf22ef
+      internalID: -1338752786
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: eraser_052
+      rect:
+        serializedVersion: 2
+        x: 768
+        y: 0
+        width: 384
+        height: 212
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 2c9d11d88f419cc47b45d167b2104d7d
+      internalID: 450653178
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: eraser_053
+      rect:
+        serializedVersion: 2
+        x: 1152
+        y: 0
+        width: 384
+        height: 212
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: e80a600a2943b6a4896541b622fa8278
+      internalID: -1465784614
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: eraser_054
+      rect:
+        serializedVersion: 2
+        x: 1536
+        y: 0
+        width: 384
+        height: 212
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: db070732c0df6dd4f8738c580d627e86
+      internalID: -1041552156
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: eraser_055
+      rect:
+        serializedVersion: 2
+        x: 1920
+        y: 0
+        width: 384
+        height: 212
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 81430de17e9cc74419805e59f24dc58f
+      internalID: -623824382
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: eraser_056
+      rect:
+        serializedVersion: 2
+        x: 2304
+        y: 0
+        width: 384
+        height: 212
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: a60c45da5ed72ed40a906435ed04f776
+      internalID: -1870065039
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: eraser_057
+      rect:
+        serializedVersion: 2
+        x: 2688
+        y: 0
+        width: 384
+        height: 212
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: e01db66e6a0b5dc4695d735472ab5cc5
+      internalID: -664229509
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: eraser_058
+      rect:
+        serializedVersion: 2
+        x: 3072
+        y: 0
+        width: 384
+        height: 212
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 99ca48cdd2de75448b0eca86591b0a0d
+      internalID: 974188802
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: 3d67d58a99074444c91ac95d453e5ab1
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries: []
+    nameFileIdTable:
+      eraser_000: -1248910143
+      eraser_001: 791041070
+      eraser_002: -1695142247
+      eraser_003: -492689998
+      eraser_004: -2016415851
+      eraser_005: -1066560030
+      eraser_006: 13527254
+      eraser_007: -537055401
+      eraser_008: -1826686957
+      eraser_009: 1038114973
+      eraser_010: 333935428
+      eraser_011: 1430406858
+      eraser_012: 1014905573
+      eraser_013: -857362574
+      eraser_014: -808515400
+      eraser_015: 866920203
+      eraser_016: -1963065770
+      eraser_017: -2025842693
+      eraser_018: -644892403
+      eraser_019: 1956286316
+      eraser_020: 1705758214
+      eraser_021: 802012603
+      eraser_022: 1555945925
+      eraser_023: -86394517
+      eraser_024: -723994530
+      eraser_025: -1586304770
+      eraser_026: -1844504126
+      eraser_027: -2142169139
+      eraser_028: -311217332
+      eraser_029: 1875970210
+      eraser_030: 265586154
+      eraser_031: 1116307853
+      eraser_032: -849569302
+      eraser_033: -1515988490
+      eraser_034: -402292784
+      eraser_035: -625406628
+      eraser_036: -1658133822
+      eraser_037: 1873545121
+      eraser_038: 872071797
+      eraser_039: 103175170
+      eraser_040: 416124033
+      eraser_041: -896987977
+      eraser_042: -66451893
+      eraser_043: 449670100
+      eraser_044: 1381441625
+      eraser_045: -1973733449
+      eraser_046: -1876849123
+      eraser_047: -1802426262
+      eraser_048: 500680752
+      eraser_049: 258904625
+      eraser_050: 560946343
+      eraser_051: -1338752786
+      eraser_052: 450653178
+      eraser_053: -1465784614
+      eraser_054: -1041552156
+      eraser_055: -623824382
+      eraser_056: -1870065039
+      eraser_057: -664229509
+      eraser_058: 974188802
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

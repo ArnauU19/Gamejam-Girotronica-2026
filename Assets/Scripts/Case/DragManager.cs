@@ -67,6 +67,7 @@ public class DragManager : MonoBehaviour
 
     void OnClickStarted()
     {
+        if (Time.timeScale == 0f) return;   // paused (pause menu / help pop-up): clicks are for the UI
         Vector3 world = GetPointerWorldPos();
         DraggableObject top = GetTopDraggableAt(world);
         if (top == null) return;

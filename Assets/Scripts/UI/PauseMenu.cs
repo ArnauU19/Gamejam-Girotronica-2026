@@ -22,6 +22,10 @@ public class PauseMenu : MonoBehaviour
     [SerializeField] private Button mainMenuButton;
     [SerializeField] private Button backButton;         // inside the options panel
     [SerializeField] private Button pauseButton;        // HUD button (top right) that opens the pause menu
+    [SerializeField] private Button helpButton;         // "?" on the pause page: opens the help pop-up
+
+    [Header("Help")]
+    [SerializeField] private HelpPopup helpPopup;       // "How to play" pop-up (also shown when a game starts)
 
     public bool IsPaused { get; private set; }
 
@@ -32,11 +36,19 @@ public class PauseMenu : MonoBehaviour
         if (mainMenuButton != null) mainMenuButton.onClick.AddListener(GoToMainMenu);
         if (backButton != null) backButton.onClick.AddListener(CloseOptions);
         if (pauseButton != null) pauseButton.onClick.AddListener(TogglePause);
+        if (helpButton != null) helpButton.onClick.AddListener(OpenHelp);
     }
 
     private void Start()
     {
         SetPaused(false);
+
+        // Pressing Play in the main menu: explain the controls before the level starts
+        if (HelpPopup.ShowOnNextLevelStart && helpPopup != null)
+        {
+            HelpPopup.ShowOnNextLevelStart = false;
+            helpPopup.Open();
+        }
     }
 
     private void Update()
@@ -44,7 +56,9 @@ public class PauseMenu : MonoBehaviour
         if (Keyboard.current == null || !Keyboard.current.escapeKey.wasPressedThisFrame)
             return;
 
-        if (IsPaused && optionsPanel != null && optionsPanel.activeSelf)
+        if (helpPopup != null && helpPopup.IsOpen)
+            helpPopup.Close();  // Esc closes the help pop-up first
+        else if (IsPaused && optionsPanel != null && optionsPanel.activeSelf)
             CloseOptions();     // Esc inside options goes back to the pause menu
         else
             SetPaused(!IsPaused);
@@ -64,6 +78,17 @@ public class PauseMenu : MonoBehaviour
     {
         if (optionsPanel != null) optionsPanel.SetActive(false);
         if (mainContent != null) mainContent.SetActive(true);
+    }
+
+    /// <summary>Shows the help pop-up over the pause menu; closing it goes back to the pause menu.</summary>
+    public void OpenHelp()
+    {
+        if (helpPopup == null) return;
+        if (pausePanel != null) pausePanel.SetActive(false);
+        helpPopup.Open(() =>
+        {
+            if (IsPaused && pausePanel != null) pausePanel.SetActive(true);
+        });
     }
 
     public void GoToMainMenu()

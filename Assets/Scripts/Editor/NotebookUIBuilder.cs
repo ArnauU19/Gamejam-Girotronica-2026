@@ -19,7 +19,7 @@ using UnityEngine.UI;
 ///
 /// Girotronica > UI > Apply Notebook UI (All Scenes) does everything and saves the scenes.
 /// </summary>
-public static class NotebookUIBuilder
+public static partial class NotebookUIBuilder
 {
     public const string GameTitle = "RULER GAME";
     const string FontsFolder = "Assets/Art/UI/Fonts";
@@ -174,6 +174,8 @@ public static class NotebookUIBuilder
         sheetContent.offsetMin = new Vector2(60, 40);
         sheetContent.offsetMax = new Vector2(-60, -30);
         var back = BuildOptions(sheetContent, 560f, 112f);
+        InstallLanguageRow(sheetContent.GetComponent<OptionsMenu>(), MainMenuOptionsLayout);
+        ResizeMainMenuSheet(sheet.rectTransform);
         optionsPanel.gameObject.SetActive(false);
 
         // ---- wire MainMenu
@@ -354,6 +356,7 @@ public static class NotebookUIBuilder
         so.FindProperty("pauseButton").objectReferenceValue = pauseButton;
         so.ApplyModifiedPropertiesWithoutUndo();
 
+        InstallPauseExtras(root);
         var prefab = PrefabUtility.SaveAsPrefabAsset(root, PausePrefabPath);
         Object.DestroyImmediate(root);
         return prefab;

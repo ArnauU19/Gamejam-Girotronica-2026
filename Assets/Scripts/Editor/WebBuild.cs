@@ -57,7 +57,7 @@ public static class WebBuild
         PlayerSettings.WebGL.dataCaching = true;
         PlayerSettings.WebGL.nameFilesAsHashes = false;
         PlayerSettings.WebGL.exceptionSupport = WebGLExceptionSupport.ExplicitlyThrownExceptionsOnly;
-        PlayerSettings.WebGL.template = "APPLICATION:Default";
+        PlayerSettings.WebGL.template = "PROJECT:Responsive";   // fills the itch.io iframe / fullscreen at any size
         PlayerSettings.WebGL.showDiagnostics = false;
 
         // 16:9 canvas like the UI (CanvasScaler 1920x1080)

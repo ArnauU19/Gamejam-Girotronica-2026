@@ -60,6 +60,7 @@ public class MainMenu : MonoBehaviour
     public void Play()
     {
         if (AudioManager.Instance != null) AudioManager.Instance.playLevelSong();
+        HelpPopup.ShowOnNextLevelStart = true;   // the first level opens the "How to play" pop-up
         SceneTransition.Load(firstLevelScene);
     }
 
