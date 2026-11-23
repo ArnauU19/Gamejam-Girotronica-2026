@@ -29,6 +29,16 @@ public class MainMenu : MonoBehaviour
         if (optionsButton != null) optionsButton.onClick.AddListener(OpenOptions);
         if (quitButton != null) quitButton.onClick.AddListener(Quit);
         if (backButton != null) backButton.onClick.AddListener(CloseOptions);
+
+#if UNITY_WEBGL && !UNITY_EDITOR
+        // Browsers ignore Application.Quit, so the Sortir button is hidden in the web build
+        // (the Button lives on the "Frame" child; its parent also holds the halftone shadow)
+        if (quitButton != null)
+        {
+            var root = quitButton.transform.parent != null ? quitButton.transform.parent : quitButton.transform;
+            root.gameObject.SetActive(false);
+        }
+#endif
     }
 
     private void Start()
